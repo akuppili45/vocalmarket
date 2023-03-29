@@ -1,69 +1,106 @@
-import flask
-import flask_login
-login_manager = flask_login.LoginManager()
-app = flask.Flask(__name__)
-app.secret_key = 'super secret string'
+from werkzeug.security import generate_password_hash, check_password_hash
+plain_password = "qwerty"
+hashed_password = generate_password_hash(plain_password)
+
+from flask import Flask,render_template,flash,redirect, url_for,request
+from flask_sqlalchemy import SQLAlchemy
+import os
+
+from flask_login import LoginManager, login_required, login_user,logout_user
+from flask_login import UserMixin
+from datetime import datetime
+
+from flask_wtf import FlaskForm
+from wtforms import StringField,PasswordField,SubmitField,BooleanField
+from wtforms.validators import DataRequired,Email,EqualTo
+
+from flask import Flask,render_template,flash
+
+from  flask_login import LoginManager, login_user, current_user
+
+
+
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mydb.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+app.app_context().push()
+
+
+SECRET_KEY = os.urandom(32)
+app.config['SECRET_KEY'] = SECRET_KEY
+
+login_manager = LoginManager()
 login_manager.init_app(app)
 
-users = {'foo@bar.tld': {'password': 'secret'}}
+class User(UserMixin, db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	username = db.Column(db.String(50), index=True, unique=True)
+	email = db.Column(db.String(150), unique = True, index = True)
+	password_hash = db.Column(db.String(150))
+	joined_at = db.Column(db.DateTime(), default = datetime.utcnow, index = True)
+	def set_password(self, password):
+		self.password_hash = generate_password_hash(password)
 
-class User(flask_login.UserMixin):
-    pass
+	def check_password(self,password):
+		return check_password_hash(self.password_hash,password)
+
+class RegistrationForm(FlaskForm):
+    username = StringField('username', validators =[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(),Email()])
+    password1 = PasswordField('Password', validators = [DataRequired()])
+    password2 = PasswordField('Confirm Password', validators = [DataRequired(),EqualTo('password1')])
+    submit = SubmitField('Register')
+
+class LoginForm(FlaskForm):
+    email = StringField('Email',validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    remember = BooleanField('Remember Me',validators= [DataRequired()])
+    submit = SubmitField('Login')
 
 
 @login_manager.user_loader
-def user_loader(email):
-    if email not in users:
-        return
+def load_user(user_id):
+    return User.query.get(user_id)
 
-    user = User()
-    user.id = email
-    return user
+@app.route('/home')
+def home():
+    return render_template('index.html')
 
 
-@login_manager.request_loader
-def request_loader(request):
-    email = request.form.get('email')
-    if email not in users:
-        return
-
-    user = User()
-    user.id = email
-    return user
+@app.route('/register', methods = ['POST','GET'])
+def register():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User(username =form.username.data, email = form.email.data)
+        user.set_password(form.password1.data)
+        db.session.add(user)
+        db.session.commit()
+        return redirect(url_for('login'))
+    return render_template('registration.html', form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if flask.request.method == 'GET':
-        return '''
-               <form action='login' method='POST'>
-                <input type='text' name='email' id='email' placeholder='email'/>
-                <input type='password' name='password' id='password' placeholder='password'/>
-                <input type='submit' name='submit'/>
-               </form>
-               '''
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email = form.email.data).first()
+        if user is not None and user.check_password(form.password.data):
+            login_user(user)
+            next = request.args.get("next")
+            return redirect(next or url_for('home'))
+        flash('Invalid email address or Password.')    
+    return render_template('login.html', form=form)
 
-    email = flask.request.form['email']
-    if email in users and flask.request.form['password'] == users[email]['password']:
-        user = User()
-        user.id = email
-        flask_login.login_user(user)
-        return flask.redirect(flask.url_for('protected'))
-
-    return 'Bad login'
-
-
-@app.route('/protected')
-@flask_login.login_required
-def protected():
-    return 'Logged in as: ' + flask_login.current_user.id
-
-@app.route('/logout')
+@app.route("/logout")
+# @login_required
 def logout():
-    flask_login.logout_user()
-    return 'Logged out'
+    logout_user()
+    return redirect(url_for('home'))
 
-@login_manager.unauthorized_handler
-def unauthorized_handler():
-    return 'Unauthorized', 401
-
+@app.route("/forbidden",methods=['GET', 'POST'])
+@login_required
+def protected():
+    return redirect(url_for('forbidden.html'))
 
