@@ -1,28 +1,69 @@
-from flask import Flask
-from dotenv import load_dotenv
-import openai
-import os
-load_dotenv()
-app = Flask(__name__)
-openai.api_key = os.getenv('OPENAI_API_KEY')
+import flask
+import flask_login
+login_manager = flask_login.LoginManager()
+app = flask.Flask(__name__)
+app.secret_key = 'super secret string'
+login_manager.init_app(app)
 
-audio_file= open("/com.docker.devenvironments.code/flask/app/audio_files/Far From God [vocals].mp3", "rb")
-transcript = openai.Audio.transcribe("whisper-1", audio_file)
-@app.route('/transcript')
-def get_transcript():
-	return transcript.text
-@app.route('/topics')
-def get_topics():
-	response = openai.Completion.create(
-	model="text-davinci-003",
-	prompt="List the themes discussed in these lyrics separated by a /:\n" + transcript.text,
-	temperature=0.7,
-	max_tokens=256,
-	top_p=1,
-	frequency_penalty=0,
-	presence_penalty=0
-	)
-	return response.choices[0].text
+users = {'foo@bar.tld': {'password': 'secret'}}
 
-if __name__ == '__main__':
-	app.run(host='0.0.0.0', port=8000)
+class User(flask_login.UserMixin):
+    pass
+
+
+@login_manager.user_loader
+def user_loader(email):
+    if email not in users:
+        return
+
+    user = User()
+    user.id = email
+    return user
+
+
+@login_manager.request_loader
+def request_loader(request):
+    email = request.form.get('email')
+    if email not in users:
+        return
+
+    user = User()
+    user.id = email
+    return user
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if flask.request.method == 'GET':
+        return '''
+               <form action='login' method='POST'>
+                <input type='text' name='email' id='email' placeholder='email'/>
+                <input type='password' name='password' id='password' placeholder='password'/>
+                <input type='submit' name='submit'/>
+               </form>
+               '''
+
+    email = flask.request.form['email']
+    if email in users and flask.request.form['password'] == users[email]['password']:
+        user = User()
+        user.id = email
+        flask_login.login_user(user)
+        return flask.redirect(flask.url_for('protected'))
+
+    return 'Bad login'
+
+
+@app.route('/protected')
+@flask_login.login_required
+def protected():
+    return 'Logged in as: ' + flask_login.current_user.id
+
+@app.route('/logout')
+def logout():
+    flask_login.logout_user()
+    return 'Logged out'
+
+@login_manager.unauthorized_handler
+def unauthorized_handler():
+    return 'Unauthorized', 401
+
+
