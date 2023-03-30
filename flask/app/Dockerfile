@@ -23,5 +23,7 @@ RUN <<EOF
 addgroup -S docker
 adduser -S --shell /bin/bash --ingroup docker vscode
 EOF
+
+RUN apt-get install -y curl
 # install Docker tools (cli, buildx, compose)
 COPY --from=gloursdocker/docker / /
