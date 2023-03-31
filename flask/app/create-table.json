@@ -1,12 +1,12 @@
 {
-    "TableName": "YourTestTable",
+    "TableName": "UserTable",
     "KeySchema": [
-      { "AttributeName": "Artist", "KeyType": "HASH" },
-      { "AttributeName": "SongTitle", "KeyType": "RANGE" }
+      { "AttributeName": "id", "KeyType": "HASH" },
+      { "AttributeName": "username", "KeyType": "RANGE" }
     ],
     "AttributeDefinitions": [
-      { "AttributeName": "Artist", "AttributeType": "S" },
-      { "AttributeName": "SongTitle", "AttributeType": "S" }
+      { "AttributeName": "id", "AttributeType": "S" },
+      { "AttributeName": "username", "AttributeType": "S" }
     ],
     "ProvisionedThroughput": {
       "ReadCapacityUnits": 5,
