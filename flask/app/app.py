@@ -78,7 +78,6 @@ def login_required_route():
 
 @app.route('/home')
 def home():
-    # print("current user type is " + str(type(current_user)), flush=True)
     return render_template('index.html', data=current_user)
 
 
