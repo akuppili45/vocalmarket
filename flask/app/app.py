@@ -24,6 +24,7 @@ import uuid
 
 app = Flask(__name__)
 
+
 app.app_context().push()
 
 
@@ -33,15 +34,15 @@ app.config['SECRET_KEY'] = SECRET_KEY
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+e = None
+
 class User(UserMixin):
-	# id = db.Column(db.Integer, primary_key=True)
     def __init__(self, username, email, *args, **kwargs):
-        super(User, self).__init__()
+        super(UserMixin, self).__init__()
         self.id = str(uuid.uuid4())
         self.username = username
         self.email = email
-	# self.password_hash = password_hash
-	# joined_at = db.Column(db.DateTime(), default = datetime.utcnow, index = True)
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
@@ -64,15 +65,20 @@ class LoginForm(FlaskForm):
 
 @login_manager.user_loader
 def load_user(user_id):
-    return aws_controller.getUserById(user_id)
+    user_json = aws_controller.getUserById(user_id)
+    user = User(user_json['username'], user_json['email'])
+    user.password_hash = user_json['password_hash']
+    user.id = user_json['id']
+    return user
 
 @app.route('/')
-def login_required():
-    print(current_user.is_authenticated)
+@login_required
+def login_required_route():
     return "logged in"
 
 @app.route('/home')
 def home():
+    # print("current user type is " + str(type(current_user)), flush=True)
     return render_template('index.html', data=current_user)
 
 
@@ -94,8 +100,17 @@ def login():
         user = User(user_json['username'], user_json['email'])
         user.password_hash = user_json['password_hash']
         user.id = user_json['id']
+        print(user.id)
         if user is not None and user.check_password(form.password.data):
+            print(type(current_user))
+            print(current_user.is_authenticated)
+
             login_user(user)
+            e = current_user
+            print(type(current_user))
+            print(current_user.is_authenticated)
+            print(e)
+
             next = request.args.get("next")
             return redirect(next or url_for('home'))
         flash('Invalid email address or Password.')    

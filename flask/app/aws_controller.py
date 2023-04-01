@@ -7,6 +7,9 @@ dynamo_resource = boto3.resource('dynamodb')
 SongTable = dynamo_resource.Table('YourTestTable')
 UserTable = dynamo_resource.Table('UserTable')
 
+def get_resource():
+    return dynamo_resource
+
 def get_items():
     return dynamo_client.scan(
         TableName='YourTestTable'
