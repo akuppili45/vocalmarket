@@ -1,13 +1,10 @@
 from werkzeug.security import generate_password_hash, check_password_hash
-plain_password = "qwerty"
-hashed_password = generate_password_hash(plain_password)
+
 
 from flask import Flask,render_template,flash,redirect, url_for,request, jsonify
-# from flask_sqlalchemy import SQLAlchemy
 import os
 
-from flask_login import LoginManager, login_required, login_user,logout_user, current_user
-from flask_login import UserMixin
+from flask_login import LoginManager, UserMixin, login_required, login_user,logout_user, current_user
 from datetime import datetime
 
 from flask_wtf import FlaskForm
@@ -69,9 +66,13 @@ class LoginForm(FlaskForm):
 def load_user(user_id):
     return aws_controller.getUserById(user_id)
 
+@app.route('/')
+def login_required():
+    print(current_user.is_authenticated)
+    return "logged in"
+
 @app.route('/home')
 def home():
-    # print("current user is " + str(current_user), flush=True)
     return render_template('index.html', data=current_user)
 
 
@@ -90,7 +91,6 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user_json = json.loads(json.dumps(aws_controller.getUserByEmail(email = form.email.data)))
-        # print(user_json, flush=True)
         user = User(user_json['username'], user_json['email'])
         user.password_hash = user_json['password_hash']
         user.id = user_json['id']
@@ -105,12 +105,6 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('home'))
-
-@app.route("/forbidden",methods=['GET', 'POST'])
-@login_required
-def protected():
-    return redirect(url_for('forbidden.html'))
-
 
 @app.route('/get-items')
 def get_items():
