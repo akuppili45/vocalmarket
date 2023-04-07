@@ -41,3 +41,5 @@ def get_users():
     return dynamo_client.scan(
         TableName='UserTable'
     )
+
+

@@ -22,6 +22,9 @@ import json
 
 import uuid
 
+import generateTopic
+
+
 app = Flask(__name__)
 
 
@@ -41,12 +44,16 @@ class User(UserMixin):
         self.id = str(uuid.uuid4())
         self.username = username
         self.email = email
+        self.postedAccapellas = []
+        self.boughtAccapellas = []
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self,password):
 	    return check_password_hash(self.password_hash,password)
+
+
 
 class RegistrationForm(FlaskForm):
     username = StringField('username', validators =[DataRequired()])
@@ -74,6 +81,13 @@ def load_user(user_id):
 @login_required
 def login_required_route():
     return "logged in"
+
+@app.route('/postAccapella/<user_id>/<key>/<bpm>/<s3Path>')
+@login_required
+def postAccapella(user_id, key, bpm, s3Path):
+    print(request.data)
+    generateTopic(s3Path)
+
 
 @app.route('/home')
 def home():
