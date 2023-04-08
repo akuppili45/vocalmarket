@@ -86,7 +86,8 @@ def login_required_route():
 @login_required
 def postAccapella(user_id, key, bpm, s3Path):
     print(request.data)
-    generateTopic(s3Path)
+    # accapellaObj = generateTopic(user_id, key, bpm, s3Path)
+    # post(accapellaObj)
 
 
 @app.route('/home')
