@@ -81,6 +81,7 @@ def load_user(user_id):
 @login_required
 def login_required_route():
     return "logged in"
+# post accapella listing
 #'/postAccapella/<user_id>/<name>/<key>/<bpm>/<price>/<s3Path>'
 # def postAccapellaListing(user_id, name, key, bpm, price, s3Path):
 # http://127.0.0.1:5000/postAccapella/2f3534df-b802-4159-ad31-360f7fb87c0d/Far From God/C min/123/30/2f3534df-b802-4159-ad31-360f7fb87c0d,acf1133bd5f13fd0b020d8de6c540a9f,farfromgodvocals.mp3
