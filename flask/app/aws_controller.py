@@ -72,8 +72,7 @@ class Encoder(json.JSONEncoder):
 
 
 aca = generateTopic.processFile('2f3534df-b802-4159-ad31-360f7fb87c0d', 'Far From God', 'C min', 123, 50, '2f3534df-b802-4159-ad31-360f7fb87c0d/acf1133bd5f13fd0b020d8de6c540a9f/farfromgodvocals.mp3')
-json_listing = json.dumps(aca.__dict__, cls=Encoder)
-print(json_listing)
+json_listing = json.loads(json.dumps(aca.__dict__, cls=Encoder))
 
 update_asset_status('2f3534df-b802-4159-ad31-360f7fb87c0d', 'akuppili', json_listing)
 
