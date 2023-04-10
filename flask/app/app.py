@@ -85,11 +85,12 @@ def login_required_route():
 #'/postAccapella/<user_id>/<name>/<key>/<bpm>/<price>/<s3Path>'
 # def postAccapellaListing(user_id, name, key, bpm, price, s3Path):
 # http://127.0.0.1:5000/postAccapella/2f3534df-b802-4159-ad31-360f7fb87c0d/Far From God/C min/123/30/2f3534df-b802-4159-ad31-360f7fb87c0d,acf1133bd5f13fd0b020d8de6c540a9f,farfromgodvocals.mp3
-@app.route('/postAccapella/<user_id>/<name>/<key>/<bpm>/<price>/<s3Path>', methods = ['GET'])
-# @login_required
+@app.route('/postAccapella/<user_id>/<name>/<key>/<bpm>/<price>/<s3Path>', methods = ['PUT'])
+@login_required
 def postAccapellaListing(user_id, name, key, bpm, price, s3Path):
-    accapellaListing = generateTopic.processFile(name, user_id, key, bpm, price, s3Path.replace(',', '/'))
-    return accapellaListing.aca.topics
+    accapellaListing = generateTopic.processFile(user_id, name, key, bpm, price, s3Path.replace(',', '/'))
+    json_listing = json.loads(json.dumps(accapellaListing.__dict__, cls=aws_controller.Encoder))
+    return aws_controller.add_accapella_listing(user_id, current_user.username, json_listing)
 
 
 @app.route('/home')
@@ -111,7 +112,8 @@ def register():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        user_json = json.loads(json.dumps(aws_controller.getUserByEmail(email = form.email.data)))
+        u = aws_controller.getUserByEmail(email = form.email.data)
+        user_json = json.loads(json.dumps(u, default=str))
         user = User(user_json['username'], user_json['email'])
         user.password_hash = user_json['password_hash']
         user.id = user_json['id']
@@ -130,6 +132,29 @@ def login():
             return redirect(next or url_for('home'))
         flash('Invalid email address or Password.')    
     return render_template('login.html', form=form)
+
+@app.route('/loginWithoutForm', methods=['GET', 'POST'])
+def loginWithoutForm():
+    email = request.args.get('email')
+    entered_password = request.args.get('password')
+    u = aws_controller.getUserByEmail(email = email)
+    user_json = json.loads(json.dumps(u, default=str))
+    user = User(user_json['username'], user_json['email'])
+    user.password_hash = user_json['password_hash']
+    user.id = user_json['id']
+    print(user.id)
+    if user is not None and user.check_password(entered_password):
+        print(type(current_user))
+        print(current_user.is_authenticated)
+
+        login_user(user)
+        e = current_user
+        print(type(current_user))
+        print(current_user.is_authenticated)
+        print(e)
+
+        return 'Success' + user.username
+    return 'Invalid email address or Password.'
 
 @app.route("/logout")
 def logout():

@@ -49,7 +49,7 @@ def get_users():
         TableName='UserTable'
     )
 
-def update_asset_status(user_id, username, listing):  
+def add_accapella_listing(user_id, username, listing):  
     result = UserTable.update_item(
         Key={
             'id': user_id,
@@ -63,6 +63,7 @@ def update_asset_status(user_id, username, listing):
     )
     if result['ResponseMetadata']['HTTPStatusCode'] == 200 and 'Attributes' in result:
         return result['Attributes']
+    return "Unable to update"
 
 class Encoder(json.JSONEncoder):
     def default(self, obj):
@@ -71,9 +72,9 @@ class Encoder(json.JSONEncoder):
         return super().default(obj)
 
 
-aca = generateTopic.processFile('2f3534df-b802-4159-ad31-360f7fb87c0d', 'Far From God', 'C min', 123, 50, '2f3534df-b802-4159-ad31-360f7fb87c0d/acf1133bd5f13fd0b020d8de6c540a9f/farfromgodvocals.mp3')
-json_listing = json.loads(json.dumps(aca.__dict__, cls=Encoder))
+# aca = generateTopic.processFile('2f3534df-b802-4159-ad31-360f7fb87c0d', 'Far From God', 'C min', 123, 50, '2f3534df-b802-4159-ad31-360f7fb87c0d/acf1133bd5f13fd0b020d8de6c540a9f/farfromgodvocals.mp3')
+# json_listing = json.loads(json.dumps(aca.__dict__, cls=Encoder))
 
-update_asset_status('2f3534df-b802-4159-ad31-360f7fb87c0d', 'akuppili', json_listing)
+# update_asset_status('2f3534df-b802-4159-ad31-360f7fb87c0d', 'akuppili', json_listing)
 
 
