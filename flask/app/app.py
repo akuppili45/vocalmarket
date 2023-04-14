@@ -92,6 +92,11 @@ def postAccapellaListing(user_id, name, key, bpm, price, s3Path):
     json_listing = json.loads(json.dumps(accapellaListing.__dict__, cls=aws_controller.Encoder))
     return aws_controller.add_accapella_listing(user_id, current_user.username, json_listing)
 
+@app.route('/getAccapellas', methods = ['GET'])
+def getAccapellas():
+    
+    pass
+
 
 @app.route('/home')
 def home():

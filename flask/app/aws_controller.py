@@ -65,16 +65,17 @@ def add_accapella_listing(user_id, username, listing):
         return result['Attributes']
     return "Unable to update"
 
+def get_all_posted_accapellas():
+    response = UserTable.scan(AttributesToGet=['postedAccapellas'])
+    return response['Items']
+
+
 class Encoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Accapella):
             return {'accapella': obj.__dict__}
         return super().default(obj)
 
-
-# aca = generateTopic.processFile('2f3534df-b802-4159-ad31-360f7fb87c0d', 'Far From God', 'C min', 123, 50, '2f3534df-b802-4159-ad31-360f7fb87c0d/acf1133bd5f13fd0b020d8de6c540a9f/farfromgodvocals.mp3')
-# json_listing = json.loads(json.dumps(aca.__dict__, cls=Encoder))
-
-# update_asset_status('2f3534df-b802-4159-ad31-360f7fb87c0d', 'akuppili', json_listing)
+print(get_all_posted_accapellas())
 
 
