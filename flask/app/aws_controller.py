@@ -6,6 +6,8 @@ import json
 
 from accapella import Accapella
 from accapellaListing import AccapellaListing
+from random import shuffle
+from decimal import Decimal
 
 
 dynamo_client = boto3.client('dynamodb')
@@ -66,16 +68,25 @@ def add_accapella_listing(user_id, username, listing):
     return "Unable to update"
 
 def get_all_posted_accapellas():
-    response = UserTable.scan(AttributesToGet=['postedAccapellas'])
-    return response['Items']
+    response = UserTable.scan(AttributesToGet=['postedAccapellas'])['Items']
+    list_to_return = []
+    for acaGroup in response:
+        if 'postedAccapellas' not in  acaGroup:
+            continue
+        for aca in acaGroup['postedAccapellas']:
+            list_to_return.append(aca)
+    shuffle(list_to_return)
+    return list_to_return
 
 
 class Encoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Accapella):
             return {'accapella': obj.__dict__}
+        elif isinstance(obj, Decimal):
+            return str(obj)
         return super().default(obj)
 
-print(get_all_posted_accapellas())
+# print(get_all_posted_accapellas())
 
 

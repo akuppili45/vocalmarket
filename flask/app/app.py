@@ -94,8 +94,8 @@ def postAccapellaListing(user_id, name, key, bpm, price, s3Path):
 
 @app.route('/getAccapellas', methods = ['GET'])
 def getAccapellas():
-    
-    pass
+    listing_dict = {'listings': aws_controller.get_all_posted_accapellas()}
+    return json.dumps(listing_dict, cls=aws_controller.Encoder)
 
 
 @app.route('/home')
