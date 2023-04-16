@@ -6,6 +6,8 @@ import user3 from "../../assets/images/users/user3.jpg";
 import user4 from "../../assets/images/users/user4.jpg";
 import user5 from "../../assets/images/users/user5.jpg";
 
+import useSWR from 'swr';
+
 const tableData = [
   {
     avatar: user1,
@@ -54,7 +56,12 @@ const tableData = [
   },
 ];
 
+const fetcher = (url) => fetch(url).then((res) => res.json());
+
+
 const ProjectTables = () => {
+  const { data, error } = useSWR('http://127.0.0.1:5000/getAccapellas', fetcher);
+  // console.log(data);
   return (
     <Card>
       <CardBody>
@@ -66,44 +73,36 @@ const ProjectTables = () => {
           <Table className="text-nowrap mt-3 align-middle" borderless>
             <thead>
               <tr>
-                <th>Team Lead</th>
-                <th>Project</th>
+                <th>Name</th>
+                <th>Key</th>
 
-                <th>Status</th>
-                <th>Weeks</th>
-                <th>Budget</th>
+                <th>BPM</th>
+                <th>Price</th>
+                <th>Topic</th>
               </tr>
             </thead>
             <tbody>
-              {tableData.map((tdata, index) => (
+              {data.listings.map((tdata, index) => (
                 <tr key={index} className="border-top">
                   <td>
                     <div className="d-flex align-items-center p-2">
-                      <Image
+                      {/* <Image
                         src={tdata.avatar}
                         className="rounded-circle"
                         alt="avatar"
                         width="45"
                         height="45"
-                      />
+                      /> */}
                       <div className="ms-3">
-                        <h6 className="mb-0">{tdata.name}</h6>
-                        <span className="text-muted">{tdata.email}</span>
+                        <h6 className="mb-0">{tdata.aca.accapella.name}</h6>
+                        <span className="text-muted">{tdata.user_id}</span>
                       </div>
                     </div>
                   </td>
-                  <td>{tdata.project}</td>
-                  <td>
-                    {tdata.status === "pending" ? (
-                      <span className="p-2 bg-danger rounded-circle d-inline-block ms-3" />
-                    ) : tdata.status === "holt" ? (
-                      <span className="p-2 bg-warning rounded-circle d-inline-block ms-3" />
-                    ) : (
-                      <span className="p-2 bg-success rounded-circle d-inline-block ms-3" />
-                    )}
-                  </td>
-                  <td>{tdata.weeks}</td>
-                  <td>{tdata.budget}</td>
+                  <td>{tdata.aca.accapella.key}</td>
+                  <td>{tdata.aca.accapella.bpm}</td>
+                  <td>{tdata.price}</td>
+                  <td>{tdata.aca.accapella.topics[1]}</td>
                 </tr>
               ))}
             </tbody>

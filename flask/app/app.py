@@ -10,7 +10,7 @@ from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms import StringField,PasswordField,SubmitField,BooleanField
 from wtforms.validators import DataRequired,Email,EqualTo
-
+from flask_cors import CORS
 
 
 
@@ -26,7 +26,7 @@ import generateTopic
 
 
 app = Flask(__name__)
-
+CORS(app)
 
 app.app_context().push()
 
