@@ -61,7 +61,9 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const ProjectTables = () => {
   const { data, error } = useSWR('http://127.0.0.1:5000/getAccapellas', fetcher);
-  // console.log(data);
+  if(!data){
+    return (<div></div>);
+  }
   return (
     <Card>
       <CardBody>

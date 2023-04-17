@@ -10,7 +10,7 @@ from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms import StringField,PasswordField,SubmitField,BooleanField
 from wtforms.validators import DataRequired,Email,EqualTo
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 
 
 
@@ -26,7 +26,7 @@ import generateTopic
 
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, support_credentials=True)
 
 app.app_context().push()
 
@@ -92,10 +92,12 @@ def postAccapellaListing(user_id, name, key, bpm, price, s3Path):
     json_listing = json.loads(json.dumps(accapellaListing.__dict__, cls=aws_controller.Encoder))
     return aws_controller.add_accapella_listing(user_id, current_user.username, json_listing)
 
-@app.route('/getAccapellas', methods = ['GET'])
+@app.route('/getAccapellas', methods = ['GET', 'POST'])
 def getAccapellas():
+    print(request.headers, flush=True)
     listing_dict = {'listings': aws_controller.get_all_posted_accapellas()}
     return json.dumps(listing_dict, cls=aws_controller.Encoder)
+    # return 'hey'
 
 
 @app.route('/home')
@@ -140,26 +142,23 @@ def login():
 
 @app.route('/loginWithoutForm', methods=['GET', 'POST'])
 def loginWithoutForm():
-    email = request.args.get('email')
-    entered_password = request.args.get('password')
+    print('login w/o form', flush=True)
+    email = request.json['email']
+    entered_password = request.json['password']
     u = aws_controller.getUserByEmail(email = email)
     user_json = json.loads(json.dumps(u, default=str))
     user = User(user_json['username'], user_json['email'])
     user.password_hash = user_json['password_hash']
     user.id = user_json['id']
+    user.postedAccapellas = user_json['postedAccapellas']
     print(user.id)
     if user is not None and user.check_password(entered_password):
-        print(type(current_user))
-        print(current_user.is_authenticated)
-
+        # print(type(current_user))
+        # print(current_user.is_authenticated)
         login_user(user)
-        e = current_user
-        print(type(current_user))
-        print(current_user.is_authenticated)
-        print(e)
-
-        return 'Success' + user.username
-    return 'Invalid email address or Password.'
+        # print(type(json.loads(json.dumps(current_user.__dict__))))
+        return json.loads(json.dumps(current_user.__dict__))
+    return None
 
 @app.route("/logout")
 def logout():
