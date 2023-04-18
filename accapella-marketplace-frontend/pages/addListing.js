@@ -34,6 +34,9 @@ import { CryptoJS } from '../tools/md5';
         };
         reader.readAsBinaryString(file);
         console.log(md5);
+        const user = JSON.parse(localStorage.getItem('user'));
+        const s3Path = user.id + '/' + md5 + '/';
+        console.log(s3Path);
     }
 
     const onFileChange = event => {
