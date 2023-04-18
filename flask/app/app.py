@@ -163,8 +163,7 @@ def loginWithoutForm():
 @app.route("/logout")
 def logout():
     logout_user()
-    return redirect(url_for('home'))
-
+    return json.loads(json.dumps({'logout': True}))
 @app.route('/get-items')
 def get_items():
     return jsonify(aws_controller.get_items())
