@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     Card,
     Row,
@@ -17,6 +17,8 @@ import { CryptoJS } from '../tools/md5';
   const Forms = () => {
     const [file, setFile] = useState(null);
     const [md5, setMd5] = useState(null);
+    const [num, setNum] = useState(0);
+    // console.log(md5);
     const addListing = async event => {
         event.preventDefault();
         const data = {
@@ -25,25 +27,43 @@ import { CryptoJS } from '../tools/md5';
             bpm: event.target.bpm.value,
             price: event.target.price.value
         }
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            e.preventDefault();
-            const binary = event.target.result;
-            setMd5(CryptoJS.MD5(binary).toString());
-        };
-        reader.readAsBinaryString(file);
+        console.log(file);
         console.log(md5);
-        const user = JSON.parse(localStorage.getItem('user'));
-        const s3Path = user.id + '/' + md5 + '/';
-        console.log(s3Path);
+
+        // const reader = new FileReader();
+        // reader.onload = function(e) {
+        //     e.preventDefault();
+        //     // console.log("inside file reading")
+        //     const binary = event.target.result;
+        //     console.log(binary);
+        //     setMd5(CryptoJS.MD5(binary).toString());
+        //     // console.log(md5)
+        // };
+        // reader.readAsBinaryString(file);
+        // // console.log(md5);
+        // const user = JSON.parse(localStorage.getItem('user'));
+        // const s3Path = user.id + '/' + md5 + '/';
+        // // console.log(s3Path);
     }
 
     const onFileChange = event => {
-     
+        event.preventDefault();
         // Update the state
         // console.log(event.target.files[0]);
-        setFile(event.target.files[0])
+        setFile(event.target.files[0]);
+        const tempFile = event.target.files[0];
+        // console.log(tempFile);
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            e.preventDefault();
+            // console.log("inside file reading")
+            const binary = e.target.result;
+            // console.log(binary);
+            setMd5(CryptoJS.MD5(binary).toString());
+            // console.log(md5)
+        };
+        reader.readAsBinaryString(tempFile);
+        // console.log(num);
        
     };
 
