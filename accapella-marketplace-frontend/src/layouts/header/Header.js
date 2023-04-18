@@ -16,6 +16,8 @@ import {
 } from "reactstrap";
 import LogoWhite from "../../assets/images/logos/monsterlogowhite.svg";
 import user1 from "../../assets/images/users/user1.jpg";
+import { useRouter } from 'next/navigation';
+
 
 const Header = ({ showMobmenu }) => {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -25,7 +27,26 @@ const Header = ({ showMobmenu }) => {
   const Handletoggle = () => {
     setIsOpen(!isOpen);
   };
+  const router = useRouter();
+  const handleLogout = async event => {
+    const endpoint = 'http://127.0.0.1:5000/loginWithoutForm';
 
+        const options = {
+            // The method is POST because we are sending data.
+            method: 'GET',
+            // Tell the server we're sending JSON.
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin' : '*',
+                'Access-Control-Allow-Methods':'GET,PUT,POST,DELETE,PATCH,OPTIONS'
+            },
+            // Body of the request is the JSON data we created above.
+        }
+        await fetch(endpoint, options);
+
+        localStorage.removeItem('user');
+        router.push('/login')
+  }
   return (
     <Navbar color="primary" dark expand="md">
       <div className="d-flex align-items-center">
@@ -94,7 +115,7 @@ const Header = ({ showMobmenu }) => {
             <DropdownItem divider />
             <DropdownItem>My Balance</DropdownItem>
             <DropdownItem>Inbox</DropdownItem>
-            <DropdownItem>Logout</DropdownItem>
+            <DropdownItem onClick={handleLogout}>Logout</DropdownItem>
           </DropdownMenu>
         </Dropdown>
       </Collapse>

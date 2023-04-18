@@ -45,7 +45,7 @@ import {
 
         const result = await response.json();
         if(result){
-            
+            localStorage.setItem('user', JSON.stringify(result));   
             router.push('/')
         }
         // console.log(result);
