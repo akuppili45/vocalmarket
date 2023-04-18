@@ -13,11 +13,15 @@ import {
     FormText,
   } from 'reactstrap';
 import { CryptoJS } from '../tools/md5';
+import { useS3Upload } from "next-s3-upload";
+
   
   const Forms = () => {
     const [file, setFile] = useState(null);
     const [md5, setMd5] = useState(null);
     const [num, setNum] = useState(0);
+    let { uploadToS3 } = useS3Upload();
+
     // console.log(md5);
     const addListing = async event => {
         event.preventDefault();
@@ -27,8 +31,8 @@ import { CryptoJS } from '../tools/md5';
             bpm: event.target.bpm.value,
             price: event.target.price.value
         }
-        console.log(file);
-        console.log(md5);
+        // console.log(file);
+        // console.log(md5);
 
         // const reader = new FileReader();
         // reader.onload = function(e) {
@@ -41,9 +45,15 @@ import { CryptoJS } from '../tools/md5';
         // };
         // reader.readAsBinaryString(file);
         // // console.log(md5);
-        // const user = JSON.parse(localStorage.getItem('user'));
-        // const s3Path = user.id + '/' + md5 + '/';
-        // // console.log(s3Path);
+        const user = JSON.parse(localStorage.getItem('user'));
+        const s3Path = user.id + '/' + md5 + '/';
+        console.log(s3Path);
+        try{
+            await uploadToS3(file);
+        } catch(error){
+            console.log(error)
+        }
+        
     }
 
     const onFileChange = event => {
