@@ -12,20 +12,28 @@ import {
     Input,
     FormText,
   } from 'reactstrap';
+import { CryptoJS } from '../tools/md5';
   
   const Forms = () => {
     const [file, setFile] = useState(null);
+    const [md5, setMd5] = useState(null);
     const addListing = async event => {
         event.preventDefault();
         const data = {
             name: event.target.name.value,
             key: event.target.key.value,
             bpm: event.target.bpm.value,
-            price: event.target.price.value,
-            file: event.target.file.value
+            price: event.target.price.value
         }
-        console.log("file object is ")
-        console.log(file)
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            e.preventDefault();
+            const binary = event.target.result;
+            setMd5(CryptoJS.MD5(binary).toString());
+        };
+        reader.readAsBinaryString(file);
+        console.log(md5);
     }
 
     const onFileChange = event => {
