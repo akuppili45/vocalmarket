@@ -54,13 +54,13 @@ const Header = ({ showMobmenu }) => {
       <Collapse navbar isOpen={isOpen}>
         <Nav className="me-auto" navbar>
           <NavItem>
-            <Link href="/">
-              <a className="nav-link">Starter</a>
+            <Link href="/" className="nav-link">
+              Starter
             </Link>
           </NavItem>
           <NavItem>
-            <Link href="/about">
-              <a className="nav-link">About</a>
+            <Link href="/about" className="nav-link">
+              About
             </Link>
           </NavItem>
           <UncontrolledDropdown inNavbar nav>

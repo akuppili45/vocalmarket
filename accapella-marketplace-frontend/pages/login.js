@@ -11,9 +11,10 @@ import {
     Input,
     FormText,
   } from 'reactstrap';
+  import { redirect, useRouter } from 'next/navigation';
   
   const Forms = () => {
-
+    const router = useRouter();
     const loginUser = async event => {
         event.preventDefault();
         const data = {
@@ -43,7 +44,11 @@ import {
         const response = await fetch(endpoint, options);
 
         const result = await response.json();
-        console.log(result);
+        if(result){
+            
+            router.push('/')
+        }
+        // console.log(result);
     }
     return (
       <Row>
