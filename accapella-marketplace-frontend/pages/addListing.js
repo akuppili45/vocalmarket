@@ -47,9 +47,19 @@ import { useS3Upload } from "next-s3-upload";
         // // console.log(md5);
         const user = JSON.parse(localStorage.getItem('user'));
         const s3Path = user.id + '/' + md5 + '/';
-        console.log(s3Path);
+        
         try{
-            await uploadToS3(file);
+            console.log(s3Path);
+            await uploadToS3(file, {
+                endpoint: {
+                  request: {
+                    body: {
+                      userId: user.id,
+                      hash: md5
+                    }
+                  }
+                }
+              });
         } catch(error){
             console.log(error)
         }
