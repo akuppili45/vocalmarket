@@ -8,25 +8,25 @@ const FullLayout = ({ children }) => {
   const showMobilemenu = () => {
     setOpen(!open);
   };
-  if(typeof window !== 'undefined' && !localStorage.getItem('user')){
-    return (
-      <main>
-        <div className="pageWrapper d-md-block d-lg-flex">
-          {/********Content Area**********/}
+  // if(typeof window !== 'undefined' && !localStorage.getItem('user')){
+  //   return (
+  //     <main>
+  //       <div className="pageWrapper d-md-block d-lg-flex">
+  //         {/********Content Area**********/}
   
-          <div className="contentArea">
-            {/********header**********/}
-            <Header showMobmenu={() => showMobilemenu()} />
+  //         <div className="contentArea">
+  //           {/********header**********/}
+  //           <Header showMobmenu={() => showMobilemenu()} />
   
-            {/********Middle Content**********/}
-            <Container className="p-4 wrapper" fluid>
-              <div>{children}</div>
-            </Container>
-          </div>
-        </div>
-      </main>
-      );
-  }
+  //           {/********Middle Content**********/}
+  //           <Container className="p-4 wrapper" fluid>
+  //             <div>{children}</div>
+  //           </Container>
+  //         </div>
+  //       </div>
+  //     </main>
+  //     );
+  // }
   return (
     <main>
       <div className="pageWrapper d-md-block d-lg-flex">

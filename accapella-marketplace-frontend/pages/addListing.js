@@ -46,7 +46,7 @@ import { useS3Upload } from "next-s3-upload";
         // reader.readAsBinaryString(file);
         // // console.log(md5);
         const user = JSON.parse(localStorage.getItem('user'));
-        const s3Path = user.id + '/' + md5 + '/';
+        const s3Path = user.id + ',' + md5 + ',' + file.name;
         
         try{
             console.log(s3Path);
@@ -63,6 +63,27 @@ import { useS3Upload } from "next-s3-upload";
         } catch(error){
             console.log(error)
         }
+        const JSONdata = JSON.stringify(data);
+        // TODO: POST
+
+        const endpoint = `http://127.0.0.1:5000//postAccapella/${user.id}/${data.name}/${data.key}/${data.bpm}/${data.price}/${s3Path}`;
+
+        const options = {
+            // The method is POST because we are sending data.
+            method: 'PUT',
+            // Tell the server we're sending JSON.
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin' : '*',
+                'Access-Control-Allow-Methods':'GET,PUT,POST,DELETE,PATCH,OPTIONS'
+            },
+            // Body of the request is the JSON data we created above.
+            body: JSONdata,
+        }
+        const response = await fetch(endpoint, options);
+
+        const result = await response.json();
+                  
         
     }
 

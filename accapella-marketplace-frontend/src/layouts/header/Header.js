@@ -29,7 +29,7 @@ const Header = ({ showMobmenu }) => {
   };
   const router = useRouter();
   const handleLogout = async event => {
-    const endpoint = 'http://127.0.0.1:5000/loginWithoutForm';
+    const endpoint = 'http://127.0.0.1:5000/logout';
 
         const options = {
             // The method is POST because we are sending data.
@@ -40,6 +40,7 @@ const Header = ({ showMobmenu }) => {
               'Access-Control-Allow-Origin' : '*',
                 'Access-Control-Allow-Methods':'GET,PUT,POST,DELETE,PATCH,OPTIONS'
             },
+            credentials: "same-origin",
             // Body of the request is the JSON data we created above.
         }
         await fetch(endpoint, options);
