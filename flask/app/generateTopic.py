@@ -25,7 +25,7 @@ s3 = boto3.client('s3')
 # transcript_text = transcript.text
 # process file and return a new accapella listing object
 def processFile(user_id, name, key, bpm, price, s3Path):
-    return AccapellaListing(user_id, Accapella(name, key, bpm, getTopics(s3Path)), price)
+    return AccapellaListing(user_id, Accapella(name, key, bpm, s3Path, getTopics(s3Path)), price)
 
 def getTopics(s3Path):
     audio_file= smart_open.open('s3://audio-files-music/' + s3Path, 'rb')

@@ -17,7 +17,7 @@ import { useS3Upload } from "next-s3-upload";
 import useUser from '../lib/useUser';
 
   
-  const Forms = () => {
+const Forms = () => {
     const [file, setFile] = useState(null);
     const [md5, setMd5] = useState(null);
     const [num, setNum] = useState(0);
@@ -67,12 +67,12 @@ import useUser from '../lib/useUser';
             console.log(error)
         }
         const JSONdata = JSON.stringify(data);
-        // TODO: POST
+        // TODO: PUT
 
         const endpoint = `http://127.0.0.1:5000//postAccapella/${user.login.id}/${data.name}/${data.key}/${data.bpm}/${data.price}/${s3Path}`;
 
         const options = {
-            // The method is POST because we are sending data.
+            // The method is PUT because we are updating data .
             method: 'PUT',
             // Tell the server we're sending JSON.
             headers: {

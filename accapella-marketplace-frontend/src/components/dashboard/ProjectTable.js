@@ -7,9 +7,9 @@ import user4 from "../../assets/images/users/user4.jpg";
 import user5 from "../../assets/images/users/user5.jpg";
 
 import useSWR from 'swr';
-import { Fragment } from "react";
+import { useState } from "react";
 
-import mp3_file from '../../../public/farfromgodvocals.mp3'
+
 
 const tableData = [
   {
@@ -64,9 +64,13 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const ProjectTables = () => {
   const { data, error } = useSWR('http://127.0.0.1:5000/getAccapellas', fetcher);
-  if(!data){
+  const [file, setFile] = useState(null);
+  // console.log(file)
+  // console.log(mp3_file)
+  if(!data && !file){
     return (<div></div>);
   }
+  console.log(data.listings)
   return (
     <Card>
       <CardBody>
@@ -105,16 +109,10 @@ const ProjectTables = () => {
                       </div>
                     </div>
                   </td>
-                  <td><audio id="audio_player" controls preload='auto'>
-                  <source id="src_mp3" type="audio/mp3" src={mp3_file}/>
-                  <source id="src_ogg" type="audio/ogg" src=""/>
-                  <object id="audio_object" type="audio/x-mpeg" width="200px" height="45px" data={mp3_file}>
-                      <param id="param_src" name="src" value={mp3_file} />
-                      <param id="param_src" name="src" value={mp3_file} />
-                      <param name="autoplay" value="false" />
-                      <param name="autostart" value="false" />
-                  </object>
-                    </audio></td>
+                  <td>
+                    <audio controls src={`https://audio-files-music.s3.us-west-1.amazonaws.com/${tdata.aca.accapella.s3Path}`} preload="auto" id="audio_player" type="audio/mp3">
+</audio>
+                  </td>
                   <td>{tdata.aca.accapella.key}</td>
                   <td>{tdata.aca.accapella.bpm}</td>
                   <td>{tdata.price}</td>
