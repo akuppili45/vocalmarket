@@ -1,7 +1,7 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
-from flask import Flask,render_template,flash,redirect, url_for,request, jsonify
+from flask import Flask,render_template,flash,redirect, url_for,request, jsonify, session, g
 import os
 
 from flask_login import LoginManager, UserMixin, login_required, login_user,logout_user, current_user
@@ -24,15 +24,28 @@ import uuid
 
 import generateTopic
 
+from flask.sessions import SecureCookieSessionInterface
+from flask_session import Session
+
+
+
 
 app = Flask(__name__)
-CORS(app, support_credentials=True)
+SECRET_KEY = os.urandom(32)
+app.secret_key = SECRET_KEY
+
+SESSION_TYPE = 'filesystem'
+app.config.from_object(__name__)
+
+Session(app)
+CORS(app, supports_credentials=True, origin='http://localhost:3000/')
+
+app.config["SESSION_COOKIE_SAMESITE"] = "None"
+app.config["SESSION_COOKIE_SECURE"] = True
+
 
 app.app_context().push()
 
-
-SECRET_KEY = os.urandom(32)
-app.config['SECRET_KEY'] = SECRET_KEY
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -69,6 +82,8 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 
+toggle = False
+
 @login_manager.user_loader
 def load_user(user_id):
     user_json = aws_controller.getUserById(user_id)
@@ -76,6 +91,12 @@ def load_user(user_id):
     user.password_hash = user_json['password_hash']
     user.id = user_json['id']
     return user
+
+
+@app.route('/users/<id>')
+def get_user(user_id):
+    user_json = aws_controller.getUserById(user_id)
+    return user_json
 
 @app.route('/')
 @login_required
@@ -86,15 +107,17 @@ def login_required_route():
 # def postAccapellaListing(user_id, name, key, bpm, price, s3Path):
 # http://127.0.0.1:5000/postAccapella/2f3534df-b802-4159-ad31-360f7fb87c0d/Far From God/C min/123/30/2f3534df-b802-4159-ad31-360f7fb87c0d,acf1133bd5f13fd0b020d8de6c540a9f,farfromgodvocals.mp3
 @app.route('/postAccapella/<user_id>/<name>/<key>/<bpm>/<price>/<s3Path>', methods = ['PUT'])
-@login_required
+# @login_required
 def postAccapellaListing(user_id, name, key, bpm, price, s3Path):
+    print(current_user, flush=True)
+    user_json = aws_controller.getUserById(user_id)
     accapellaListing = generateTopic.processFile(user_id, name, key, bpm, price, s3Path.replace(',', '/'))
     json_listing = json.loads(json.dumps(accapellaListing.__dict__, cls=aws_controller.Encoder))
-    return aws_controller.add_accapella_listing(user_id, current_user.username, json_listing)
+    return aws_controller.add_accapella_listing(user_id, user_json['username'], json_listing)
 
 @app.route('/getAccapellas', methods = ['GET', 'POST'])
 def getAccapellas():
-    print(request.headers, flush=True)
+    print(current_user, flush=True)
     listing_dict = {'listings': aws_controller.get_all_posted_accapellas()}
     return json.dumps(listing_dict, cls=aws_controller.Encoder)
     # return 'hey'
@@ -116,6 +139,7 @@ def register():
     return render_template('registration.html', form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
+@cross_origin
 def login():
     form = LoginForm()
     if form.validate_on_submit():
@@ -141,8 +165,9 @@ def login():
     return render_template('login.html', form=form)
 
 @app.route('/loginWithoutForm', methods=['GET', 'POST'])
+@cross_origin()
 def loginWithoutForm():
-    print('login w/o form', flush=True)
+    print(request.json, flush=True)
     email = request.json['email']
     entered_password = request.json['password']
     u = aws_controller.getUserByEmail(email = email)
@@ -151,17 +176,24 @@ def loginWithoutForm():
     user.password_hash = user_json['password_hash']
     user.id = user_json['id']
     user.postedAccapellas = user_json['postedAccapellas']
-    print(user.id)
+    # print(user.id)
     if user is not None and user.check_password(entered_password):
         # print(type(current_user))
         # print(current_user.is_authenticated)
         login_user(user)
+        session['curr'] = 'curr'
+        print('login', flush=True)
+        print(session.get('curr'), flush=True)
+        # request.Session()
         # print(type(json.loads(json.dumps(current_user.__dict__))))
         return json.loads(json.dumps(current_user.__dict__))
     return None
 
-@app.route("/logout")
+@app.route("/logout", methods=['GET', 'POST'])
+# @login_required
+@cross_origin()
 def logout():
+    print(session.get('curr'), flush=True)
     logout_user()
     return json.loads(json.dumps({'logout': True}))
 @app.route('/get-items')

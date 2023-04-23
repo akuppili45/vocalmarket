@@ -1,10 +1,20 @@
 import FullLayout from "../src/layouts/FullLayout";
 import Head from "next/head";
 import "../styles/style.scss";
+import { SWRConfig } from "swr";
+import fetchJson, { FetchError } from "../lib/fetchJson";
+
 
 function MyApp({ Component, pageProps }) {
   return (
-    <>
+    <SWRConfig
+    value={{
+      fetcher: fetchJson,
+      onError: (err) => {
+        console.error(err);
+      },
+    }}
+  >
       <Head>
         <title>Accapella Marketplace</title>
         <meta
@@ -17,7 +27,7 @@ function MyApp({ Component, pageProps }) {
       <FullLayout>
         <Component {...pageProps} />
       </FullLayout>
-    </>
+      </SWRConfig>
   );
 }
 

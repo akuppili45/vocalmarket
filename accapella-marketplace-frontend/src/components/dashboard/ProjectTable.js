@@ -7,6 +7,9 @@ import user4 from "../../assets/images/users/user4.jpg";
 import user5 from "../../assets/images/users/user5.jpg";
 
 import useSWR from 'swr';
+import { Fragment } from "react";
+
+import mp3_file from '../../../public/farfromgodvocals.mp3'
 
 const tableData = [
   {
@@ -76,6 +79,7 @@ const ProjectTables = () => {
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Play</th>
                 <th>Key</th>
 
                 <th>BPM</th>
@@ -101,6 +105,16 @@ const ProjectTables = () => {
                       </div>
                     </div>
                   </td>
+                  <td><audio id="audio_player" controls preload='auto'>
+                  <source id="src_mp3" type="audio/mp3" src={mp3_file}/>
+                  <source id="src_ogg" type="audio/ogg" src=""/>
+                  <object id="audio_object" type="audio/x-mpeg" width="200px" height="45px" data={mp3_file}>
+                      <param id="param_src" name="src" value={mp3_file} />
+                      <param id="param_src" name="src" value={mp3_file} />
+                      <param name="autoplay" value="false" />
+                      <param name="autostart" value="false" />
+                  </object>
+                    </audio></td>
                   <td>{tdata.aca.accapella.key}</td>
                   <td>{tdata.aca.accapella.bpm}</td>
                   <td>{tdata.price}</td>

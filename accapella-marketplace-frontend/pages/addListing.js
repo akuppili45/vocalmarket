@@ -14,6 +14,7 @@ import {
   } from 'reactstrap';
 import { CryptoJS } from '../tools/md5';
 import { useS3Upload } from "next-s3-upload";
+import useUser from '../lib/useUser';
 
   
   const Forms = () => {
@@ -21,7 +22,8 @@ import { useS3Upload } from "next-s3-upload";
     const [md5, setMd5] = useState(null);
     const [num, setNum] = useState(0);
     let { uploadToS3 } = useS3Upload();
-
+    const { user } = useUser();
+    console.log(user);
     // console.log(md5);
     const addListing = async event => {
         event.preventDefault();
@@ -45,8 +47,9 @@ import { useS3Upload } from "next-s3-upload";
         // };
         // reader.readAsBinaryString(file);
         // // console.log(md5);
-        const user = JSON.parse(localStorage.getItem('user'));
-        const s3Path = user.id + ',' + md5 + ',' + file.name;
+        // const user = JSON.parse(localStorage.getItem('user'));
+        
+        const s3Path = user.login.id + ',' + md5 + ',' + file.name;
         
         try{
             console.log(s3Path);
@@ -54,7 +57,7 @@ import { useS3Upload } from "next-s3-upload";
                 endpoint: {
                   request: {
                     body: {
-                      userId: user.id,
+                      userId: user.login.id,
                       hash: md5
                     }
                   }
@@ -66,7 +69,7 @@ import { useS3Upload } from "next-s3-upload";
         const JSONdata = JSON.stringify(data);
         // TODO: POST
 
-        const endpoint = `http://127.0.0.1:5000//postAccapella/${user.id}/${data.name}/${data.key}/${data.bpm}/${data.price}/${s3Path}`;
+        const endpoint = `http://127.0.0.1:5000//postAccapella/${user.login.id}/${data.name}/${data.key}/${data.bpm}/${data.price}/${s3Path}`;
 
         const options = {
             // The method is POST because we are sending data.

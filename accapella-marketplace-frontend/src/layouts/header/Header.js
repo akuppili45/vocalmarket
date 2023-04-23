@@ -17,6 +17,8 @@ import {
 import LogoWhite from "../../assets/images/logos/monsterlogowhite.svg";
 import user1 from "../../assets/images/users/user1.jpg";
 import { useRouter } from 'next/navigation';
+import useUser from "../../../lib/useUser";
+import fetchJson from "../../../lib/fetchJson";
 
 
 const Header = ({ showMobmenu }) => {
@@ -27,26 +29,33 @@ const Header = ({ showMobmenu }) => {
   const Handletoggle = () => {
     setIsOpen(!isOpen);
   };
+  const { user, mutateUser } = useUser();
   const router = useRouter();
   const handleLogout = async event => {
-    const endpoint = 'http://127.0.0.1:5000/logout';
+    event.preventDefault();
 
-        const options = {
-            // The method is POST because we are sending data.
-            method: 'GET',
-            // Tell the server we're sending JSON.
-            headers: {
-              'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin' : '*',
-                'Access-Control-Allow-Methods':'GET,PUT,POST,DELETE,PATCH,OPTIONS'
-            },
-            credentials: "same-origin",
-            // Body of the request is the JSON data we created above.
-        }
-        await fetch(endpoint, options);
+    mutateUser(
+      await fetchJson("/api/logout", { method: "GET" }),
+      false,
+    );
+    router.push("/login");
+    // const endpoint = 'http://127.0.0.1:5000/logout';
+    //     const options = {
+    //         // The method is POST because we are sending data.
+    //         method: 'GET',
+    //         // Tell the server we're sending JSON.
+    //         headers: {
+    //           'Content-Type': 'application/json',
+    //           'Access-Control-Allow-Origin' : '*',
+    //             'Access-Control-Allow-Methods':'GET,PUT,POST,DELETE,PATCH,OPTIONS'
+    //         },
+    //         credentials: "same-origin",
+    //         // Body of the request is the JSON data we created above.
+    //     }
+    //     await fetch(endpoint, options);
 
-        localStorage.removeItem('user');
-        router.push('/login')
+    //     localStorage.removeItem('user');
+    //     router.push('/login')
   }
   return (
     <Navbar color="primary" dark expand="md">
