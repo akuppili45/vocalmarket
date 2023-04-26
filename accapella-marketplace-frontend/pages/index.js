@@ -11,7 +11,7 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
 
 export default function Home() {
-  const { data, error } = useSWR('http://127.0.0.1:5000/getAccapellas', fetcher);
+  const { data, error } = useSWR('http://127.0.0.1:5000/getAccapellas', fetcher, {revalidateOnFocus: false});
   const [listings, setListings] = useState(data);
 
   useEffect(() => {
@@ -21,7 +21,7 @@ export default function Home() {
     return (<div></div>);
   }
 
-  // console.log(listings)
+  console.log(listings)
 
   const listingArr = data.listings;
   return (
@@ -41,10 +41,8 @@ export default function Home() {
             const bpmHigh = e.target.bpmHigh.value;
             const topicsStr = e.target.topics.value;
             const topicsArr = topicsStr.split(' ');
-            console.log(topicsArr);
             const filtered = listings.filter(listing => {
               // console.log(`${listing.aca.accapella.name}  ${topicsArr}`);
-              console.log(topicsArr)
               return (name.length === 0 ||  (name.length > 0 && name === listing.aca.accapella.name))
               && (author.length === 0 || (author.length > 0 && author === listing.user_id))
               && (key.length === 0 || (key.length > 0 && key === listing.aca.accapella.key))
@@ -52,8 +50,7 @@ export default function Home() {
               && (bpmHigh.length === 0 || (bpmHigh.length > 0 && parseInt(bpmHigh) > parseInt(listing.aca.accapella.bpm)))
               && (topicsArr[0].length === 0 || (topicsArr[0].length > 0 && topicsArr.every(topic => listing.aca.accapella.topics.includes(topic))));
             })
-            console.log(filtered);
-            // setListings(e.target.name.value);
+            setListings(filtered);
           }}/>
         </aside>
       <Head>
@@ -77,7 +74,7 @@ export default function Home() {
         {/***Table ***/}
         <Row>
           <Col lg="12" sm="12">
-            <ProjectTables data={listingArr}/>
+            <ProjectTables data={listings}/>
           </Col>
         </Row>
         {/***Blog Cards***/}
