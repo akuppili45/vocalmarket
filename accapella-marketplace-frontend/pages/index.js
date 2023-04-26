@@ -1,13 +1,61 @@
 import Head from "next/head";
 import { Col, Row } from "reactstrap";
 import ProjectTables from "../src/components/dashboard/ProjectTable";
+import useSWR from 'swr';
+import Sidebar from "../src/layouts/sidebars/vertical/Sidebar";
+import SearchBar from "../src/layouts/sidebars/vertical/SearchBar";
+import { useEffect, useState } from "react";
 
 
+const fetcher = (url) => fetch(url).then((res) => res.json());
 
 
 export default function Home() {
+  const { data, error } = useSWR('http://127.0.0.1:5000/getAccapellas', fetcher);
+  const [listings, setListings] = useState(data);
+
+  useEffect(() => {
+    setListings(data?.listings)
+  }, [data])
+  if(!data){
+    return (<div></div>);
+  }
+
+  // console.log(listings)
+
+  const listingArr = data.listings;
   return (
     <div>
+      <div  className="pageWrapper d-md-block d-lg-flex">
+      <aside
+          className={`sidebarArea shadow bg-white ${
+            !open ? "" : "showSidebar"
+          }`}
+        >
+          <SearchBar setData={e => {
+            e.preventDefault();
+            const name = e.target.name.value;
+            const author = e.target.author.value;
+            const key = e.target.key.value;
+            const bpmLow = e.target.bpmLow.value;
+            const bpmHigh = e.target.bpmHigh.value;
+            const topicsStr = e.target.topics.value;
+            const topicsArr = topicsStr.split(' ');
+            console.log(topicsArr);
+            const filtered = listings.filter(listing => {
+              // console.log(`${listing.aca.accapella.name}  ${topicsArr}`);
+              console.log(topicsArr)
+              return (name.length === 0 ||  (name.length > 0 && name === listing.aca.accapella.name))
+              && (author.length === 0 || (author.length > 0 && author === listing.user_id))
+              && (key.length === 0 || (key.length > 0 && key === listing.aca.accapella.key))
+              && (bpmLow.length === 0 || (bpmLow.length > 0 && parseInt(bpmLow) < parseInt(listing.aca.accapella.bpm)))
+              && (bpmHigh.length === 0 || (bpmHigh.length > 0 && parseInt(bpmHigh) > parseInt(listing.aca.accapella.bpm)))
+              && (topicsArr[0].length === 0 || (topicsArr[0].length > 0 && topicsArr.every(topic => listing.aca.accapella.topics.includes(topic))));
+            })
+            console.log(filtered);
+            // setListings(e.target.name.value);
+          }}/>
+        </aside>
       <Head>
         <title>Accapella Marketplace</title>
         <meta
@@ -16,7 +64,7 @@ export default function Home() {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div>
+      <div className="contentArea">
         {/***Sales & Feed***/}
         {/* <Row>
           <Col sm="12" lg="6" xl="7" xxl="8">
@@ -29,7 +77,7 @@ export default function Home() {
         {/***Table ***/}
         <Row>
           <Col lg="12" sm="12">
-            <ProjectTables />
+            <ProjectTables data={listingArr}/>
           </Col>
         </Row>
         {/***Blog Cards***/}
@@ -48,5 +96,7 @@ export default function Home() {
         </Row> */}
       </div>
     </div>
+    </div>
+    
   );
 }

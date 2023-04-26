@@ -6,7 +6,6 @@ import user3 from "../../assets/images/users/user3.jpg";
 import user4 from "../../assets/images/users/user4.jpg";
 import user5 from "../../assets/images/users/user5.jpg";
 
-import useSWR from 'swr';
 import { useState } from "react";
 
 
@@ -59,18 +58,12 @@ const tableData = [
   },
 ];
 
-const fetcher = (url) => fetch(url).then((res) => res.json());
 
 
-const ProjectTables = () => {
-  const { data, error } = useSWR('http://127.0.0.1:5000/getAccapellas', fetcher);
-  const [file, setFile] = useState(null);
-  // console.log(file)
-  // console.log(mp3_file)
-  if(!data && !file){
+const ProjectTables = ({ data }) => {
+  if(!data){
     return (<div></div>);
   }
-  console.log(data.listings)
   return (
     <Card>
       <CardBody>
@@ -92,7 +85,7 @@ const ProjectTables = () => {
               </tr>
             </thead>
             <tbody>
-              {data.listings.map((tdata, index) => (
+              {data.map((tdata, index) => (
                 <tr key={index} className="border-top">
                   <td>
                     <div className="d-flex align-items-center p-2">
