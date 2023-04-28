@@ -9,11 +9,8 @@ load_dotenv()
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
 s3 = boto3.client('s3')
-# bucket = s3.Bucket('audio-files-music')
-# for object in bucket.objects.all():
-#     print(object)
 
-# audio_file= smart_open.open('s3://audio-files-music/2f3534df-b802-4159-ad31-360f7fb87c0d/acf1133bd5f13fd0b020d8de6c540a9f/farfromgodvocals.mp3', 'rb')
+
 
 
 
