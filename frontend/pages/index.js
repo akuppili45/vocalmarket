@@ -53,7 +53,7 @@ export default function Home() {
               && (bpmHigh.length === 0 || (bpmHigh.length > 0 && parseInt(bpmHigh) > parseInt(listing.aca.accapella.bpm)))
               && (topicsArr[0].length === 0 || (topicsArr[0].length > 0 && topicsArr.every(topic => listing.aca.accapella.topics.includes(topic))));
             })
-            setListings(filtered);
+            setTempListings(filtered);
           }}/>
         </aside>
       <Head>
@@ -77,7 +77,7 @@ export default function Home() {
         {/***Table ***/}
         <Row>
           <Col lg="12" sm="12">
-            <ProjectTables data={listings}/>
+            <ProjectTables data={tempListings}/>
           </Col>
         </Row>
         {/***Blog Cards***/}
