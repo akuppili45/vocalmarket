@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 
+
 export default function Home() {
   const { data, error } = useSWR('http://127.0.0.1:5000/getAccapellas', fetcher, {revalidateOnFocus: false});
   const [listings, setListings] = useState(data);

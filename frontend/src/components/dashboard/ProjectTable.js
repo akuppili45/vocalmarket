@@ -7,6 +7,7 @@ import user4 from "../../assets/images/users/user4.jpg";
 import user5 from "../../assets/images/users/user5.jpg";
 
 import { useState } from "react";
+import { loadStripe } from '@stripe/stripe-js';
 
 
 
@@ -58,7 +59,9 @@ const tableData = [
   },
 ];
 
-
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+);
 
 const ProjectTables = ({ data }) => {
   if(!data){
@@ -110,6 +113,12 @@ const ProjectTables = ({ data }) => {
                   <td>{tdata.aca.accapella.bpm}</td>
                   <td>{tdata.price}</td>
                   <td>{tdata.aca.accapella.topics[1]}</td>
+                  <td>
+                    <form action="/api/checkout_sessions" method="POST">
+                      <button style={{ background: '#556cd6', height: 36, borderRadius: 4, color: 'white', marginTop: 20 }} type="submit" role="link">Checkout</button>
+                    </form>
+                    
+                  </td>
                 </tr>
               ))}
             </tbody>
