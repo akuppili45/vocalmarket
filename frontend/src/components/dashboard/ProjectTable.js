@@ -7,7 +7,6 @@ import user4 from "../../assets/images/users/user4.jpg";
 import user5 from "../../assets/images/users/user5.jpg";
 
 import { useState } from "react";
-import { loadStripe } from '@stripe/stripe-js';
 
 
 
@@ -59,14 +58,12 @@ const tableData = [
   },
 ];
 
-const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
-);
 
 const ProjectTables = ({ data }) => {
   if(!data){
     return (<div></div>);
   }
+  console.log(data[0].price?.unit_amount / 100);
   return (
     <Card>
       <CardBody>
@@ -83,7 +80,7 @@ const ProjectTables = ({ data }) => {
                 <th>Key</th>
 
                 <th>BPM</th>
-                <th>Price</th>
+                {/* <th>Price</th> */}
                 <th>Topic</th>
               </tr>
             </thead>
@@ -111,10 +108,10 @@ const ProjectTables = ({ data }) => {
                   </td>
                   <td>{tdata.aca.accapella.key}</td>
                   <td>{tdata.aca.accapella.bpm}</td>
-                  <td>{tdata.price}</td>
+                  {/* <td>{tdata.price}</td> */}
                   <td>{tdata.aca.accapella.topics[1]}</td>
                   <td>
-                    <form action="/api/checkout_sessions" method="POST">
+                    <form action={`http://127.0.0.1:5000/create-checkout-session/${tdata.price.id}`} method="POST">
                       <button style={{ background: '#556cd6', height: 36, borderRadius: 4, color: 'white', marginTop: 20 }} type="submit" role="link">Checkout</button>
                     </form>
                     

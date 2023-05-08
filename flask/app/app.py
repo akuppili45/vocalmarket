@@ -27,7 +27,7 @@ import generateTopic
 from flask.sessions import SecureCookieSessionInterface
 from flask_session import Session
 
-
+import stripe
 
 
 app = Flask(__name__)
@@ -46,6 +46,7 @@ app.config["SESSION_COOKIE_SECURE"] = True
 
 app.app_context().push()
 
+stripe.api_key = "sk_test_4eC39HqLyjWDarjtT1zdp7dc"
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -109,9 +110,16 @@ def login_required_route():
 @app.route('/postAccapella/<user_id>/<name>/<key>/<bpm>/<price>/<s3Path>', methods = ['PUT'])
 # @login_required
 def postAccapellaListing(user_id, name, key, bpm, price, s3Path):
-    print(current_user, flush=True)
+    print('bpm', flush=True)
+    stripe_prod = stripe.Product.create(name=name)
+    
+    stripe_price = stripe.Price.create(
+        unit_amount=int(price) * 100,
+        currency="usd",
+        product=stripe_prod['id']
+        )
     user_json = aws_controller.getUserById(user_id)
-    accapellaListing = generateTopic.processFile(user_id, name, key, bpm, price, s3Path.replace(',', '/'))
+    accapellaListing = generateTopic.processFile(user_id, name, key, bpm, stripe_price, s3Path.replace(',', '/'))
     json_listing = json.loads(json.dumps(accapellaListing.__dict__, cls=aws_controller.Encoder))
     return aws_controller.add_accapella_listing(user_id, user_json['username'], json_listing)
 
@@ -217,4 +225,27 @@ def addSong():
         'msg': 'Some error occcured',
         'response': response
     }
+
+
+YOUR_DOMAIN = 'http://localhost:3000'
+
+@app.route('/create-checkout-session/<price_id>', methods=['POST'])
+def create_checkout_session(price_id):
+    try:
+        checkout_session = stripe.checkout.Session.create(
+            line_items=[
+                {
+                    # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+                    'price': price_id,
+                    'quantity': 1,
+                },
+            ],
+            mode='payment',
+            success_url=YOUR_DOMAIN + '?success=true',
+            cancel_url=YOUR_DOMAIN + '?canceled=true',
+        )
+    except Exception as e:
+        return str(e)
+
+    return redirect(checkout_session.url, code=303)
 

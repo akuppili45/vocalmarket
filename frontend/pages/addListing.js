@@ -67,7 +67,8 @@ const Forms = () => {
             console.log(error)
         }
         const JSONdata = JSON.stringify(data);
-        // TODO: PUT
+
+
 
         const endpoint = `http://127.0.0.1:5000//postAccapella/${user.login.id}/${data.name}/${data.key}/${data.bpm}/${data.price}/${s3Path}`;
 
@@ -85,7 +86,7 @@ const Forms = () => {
         }
         const response = await fetch(endpoint, options);
 
-        const result = await response.json();
+        
                   
         
     }
