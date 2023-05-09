@@ -123,10 +123,10 @@ def postAccapellaListing(user_id, name, key, bpm, price, s3Path):
     json_listing = json.loads(json.dumps(accapellaListing.__dict__, cls=aws_controller.Encoder))
     return aws_controller.add_accapella_listing(user_id, user_json['username'], json_listing)
 
-@app.route('/getAccapellas', methods = ['GET', 'POST'])
-def getAccapellas():
+@app.route('/getAccapellas/<user_id>', methods = ['GET', 'POST'])
+def getAccapellas(user_id):
     print(current_user, flush=True)
-    listing_dict = {'listings': aws_controller.get_all_posted_accapellas()}
+    listing_dict = {'listings': aws_controller.get_all_posted_accapellas_except_user(user_id)}
     return json.dumps(listing_dict, cls=aws_controller.Encoder)
     # return 'hey'
 
@@ -183,7 +183,8 @@ def loginWithoutForm():
     user = User(user_json['username'], user_json['email'])
     user.password_hash = user_json['password_hash']
     user.id = user_json['id']
-    user.postedAccapellas = user_json['postedAccapellas']
+    if('postedAccapellas' in user_json):
+        user.postedAccapellas = user_json['postedAccapellas']
     # print(user.id)
     if user is not None and user.check_password(entered_password):
         # print(type(current_user))
@@ -229,8 +230,8 @@ def addSong():
 
 YOUR_DOMAIN = 'http://localhost:3000'
 
-@app.route('/create-checkout-session/<price_id>', methods=['POST'])
-def create_checkout_session(price_id):
+@app.route('/create-checkout-session/<user_id>/<price_id>/<name>/<original_owner>/<s3Path>', methods=['POST'])
+def create_checkout_session(user_id, price_id, name, original_owner, s3Path):
     try:
         checkout_session = stripe.checkout.Session.create(
             line_items=[
@@ -244,6 +245,11 @@ def create_checkout_session(price_id):
             success_url=YOUR_DOMAIN + '?success=true',
             cancel_url=YOUR_DOMAIN + '?canceled=true',
         )
+        if(checkout_session.url == YOUR_DOMAIN + '?success=true'):
+            # name, artist they bought from, s3Path
+            bought_dict = {"name": name, "original_owner": original_owner, "s3Path": s3Path}
+            user_json = aws_controller.getUserById(user_id)
+            aws_controller.add_bought_accapella(user_id, user_json['username'], bought_dict)
     except Exception as e:
         return str(e)
 

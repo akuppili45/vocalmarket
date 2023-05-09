@@ -7,7 +7,7 @@ import user4 from "../../assets/images/users/user4.jpg";
 import user5 from "../../assets/images/users/user5.jpg";
 
 import { useState } from "react";
-
+import useUser from "../../../lib/useUser";
 
 
 const tableData = [
@@ -63,7 +63,8 @@ const ProjectTables = ({ data }) => {
   if(!data){
     return (<div></div>);
   }
-  console.log(data[0].price?.unit_amount / 100);
+  console.log(data[0]?.price?.unit_amount / 100);
+  const { user } = useUser();
   return (
     <Card>
       <CardBody>
@@ -111,7 +112,7 @@ const ProjectTables = ({ data }) => {
                   {/* <td>{tdata.price}</td> */}
                   <td>{tdata.aca.accapella.topics[1]}</td>
                   <td>
-                    <form action={`http://127.0.0.1:5000/create-checkout-session/${tdata.price.id}`} method="POST">
+                    <form action={`http://127.0.0.1:5000/create-checkout-session/${user.login.id}/${tdata.price.id}/${tdata.aca.accapella.name}/${tdata.user_id}/${tdata.aca.accapella.s3Path}`} method="POST">
                       <button style={{ background: '#556cd6', height: 36, borderRadius: 4, color: 'white', marginTop: 20 }} type="submit" role="link">Checkout</button>
                     </form>
                     

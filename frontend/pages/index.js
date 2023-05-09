@@ -5,6 +5,7 @@ import useSWR from 'swr';
 import Sidebar from "../src/layouts/sidebars/vertical/Sidebar";
 import SearchBar from "../src/layouts/sidebars/vertical/SearchBar";
 import { useEffect, useState } from "react";
+import useUser from "../lib/useUser";
 
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
@@ -12,7 +13,9 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
 
 export default function Home() {
-  const { data, error } = useSWR('http://127.0.0.1:5000/getAccapellas', fetcher, {revalidateOnFocus: false});
+  const { user } = useUser();
+  // console.log(user);
+  const { data, error } = useSWR(`http://127.0.0.1:5000/getAccapellas/${user?.login.id}`, fetcher, {revalidateOnFocus: false});
   const [listings, setListings] = useState(data);
   const [tempListings, setTempListings] = useState(data);
   
@@ -25,7 +28,6 @@ export default function Home() {
     return (<div></div>);
   }
 
-  console.log(listings)
 
   const listingArr = data.listings;
   return (
