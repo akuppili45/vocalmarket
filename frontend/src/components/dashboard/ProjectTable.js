@@ -63,7 +63,7 @@ const ProjectTables = ({ data }) => {
   if(!data){
     return (<div></div>);
   }
-  console.log(data[0]?.price?.unit_amount / 100);
+  // console.log(data);
   const { user } = useUser();
   return (
     <Card>
@@ -112,7 +112,7 @@ const ProjectTables = ({ data }) => {
                   {/* <td>{tdata.price}</td> */}
                   <td>{tdata.aca.accapella.topics[1]}</td>
                   <td>
-                    <form action={`http://127.0.0.1:5000/create-checkout-session/${user.login.id}/${tdata.price.id}/${tdata.aca.accapella.name}/${tdata.user_id}/${tdata.aca.accapella.s3Path}`} method="POST">
+                    <form action={`http://127.0.0.1:5000/create-checkout-session/${user.userData.id}/${tdata.price.id}/${tdata.aca.accapella.name}/${tdata.user_id}/${tdata.aca.accapella.s3Path.replaceAll('/', ',')}`} method="POST">
                       <button style={{ background: '#556cd6', height: 36, borderRadius: 4, color: 'white', marginTop: 20 }} type="submit" role="link">Checkout</button>
                     </form>
                     

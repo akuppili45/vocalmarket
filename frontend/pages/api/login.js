@@ -20,23 +20,20 @@ export default withIronSessionApiRoute(async (req, res) => {
               'Content-Type': 'application/json',
               'Access-Control-Allow-Origin' : '*',
               'Access-Control-Allow-Methods':'GET,PUT,POST,DELETE,PATCH,OPTIONS',
-              'Access-Control-Allow-Credentials': 'true'
             },
             // Body of the request is the JSON data we created above.
             body: JSONdata,
-            credentials: 'include',
-            mode: 'cors',
-            withCredentials: true
     }
     console.log(`email from api/login is ${email} and password is ${password}`)
 
     const login = await fetchJson(endpoint, options);
-
+    console.log(login);
+    const userData = {id: login.id, username: login.username}
     // const {
     //   data: { login, avatar_url },
     // } = await octokit.rest.users.getByUsername({ username });
 
-    const user = { isLoggedIn: true, login };
+    const user = { isLoggedIn: true, userData };
     // localStorage.setItem('user', user);   
     req.session.user = user;
     await req.session.save();

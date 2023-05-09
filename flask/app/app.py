@@ -46,7 +46,8 @@ app.config["SESSION_COOKIE_SECURE"] = True
 
 app.app_context().push()
 
-stripe.api_key = "sk_test_4eC39HqLyjWDarjtT1zdp7dc"
+stripe.api_key = "sk_test_51J6nWgB2OseA0Lnf6CzIHxG8KfDJbNteiwuHWaBmmjY3AalaQSCTl6CohZdk9weSl3oLtjhRxI095jmFCHYaxdcR004IEUsKPt"
+stripe_endpoint_secret = 'whsec_3eb444e0b3a712511425d406ee1feb57886b0116b79965d855d44f28cb79b36b'
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -232,6 +233,7 @@ YOUR_DOMAIN = 'http://localhost:3000'
 
 @app.route('/create-checkout-session/<user_id>/<price_id>/<name>/<original_owner>/<s3Path>', methods=['POST'])
 def create_checkout_session(user_id, price_id, name, original_owner, s3Path):
+    print('before check9ut', flush=True)
     try:
         checkout_session = stripe.checkout.Session.create(
             line_items=[
@@ -245,13 +247,42 @@ def create_checkout_session(user_id, price_id, name, original_owner, s3Path):
             success_url=YOUR_DOMAIN + '?success=true',
             cancel_url=YOUR_DOMAIN + '?canceled=true',
         )
-        if(checkout_session.url == YOUR_DOMAIN + '?success=true'):
-            # name, artist they bought from, s3Path
-            bought_dict = {"name": name, "original_owner": original_owner, "s3Path": s3Path}
-            user_json = aws_controller.getUserById(user_id)
-            aws_controller.add_bought_accapella(user_id, user_json['username'], bought_dict)
     except Exception as e:
         return str(e)
-
+    print(checkout_session.url, flush=True)
+    if(checkout_session.url == YOUR_DOMAIN + '?success=true'):
+            # name, artist they bought from, s3Path
+            print('success', flush=True)
+            bought_dict = {"name": name, "original_owner": original_owner, "s3Path": s3Path.replace(',', '/')}
+            user_json = aws_controller.getUserById(user_id)
+            aws_controller.add_bought_accapella(user_id, user_json['username'], bought_dict)
     return redirect(checkout_session.url, code=303)
 
+
+
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    event = None
+    payload = request.data
+    sig_header = request.headers['STRIPE_SIGNATURE']
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, stripe_endpoint_secret
+        )
+    except ValueError as e:
+        # Invalid payload
+        raise e
+    except stripe.error.SignatureVerificationError as e:
+        # Invalid signature
+        raise e
+
+    # Handle the event
+    if event['type'] == 'payment_intent.succeeded':
+        print('payment checkout succeeded', flush=True)
+        payment_intent = event['data']['object']
+    # ... handle other event types
+    else:
+        print('Unhandled event type {}'.format(event['type']))
+
+    return jsonify(success=True)

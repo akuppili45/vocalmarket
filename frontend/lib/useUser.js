@@ -8,7 +8,6 @@ export default function useUser({
   redirectIfFound = false,
 } = {}) {
   const { data: user, mutate: mutateUser } = useSWR("/api/user");
-  console.log(user);
   const router = useRouter();
   useEffect(() => {
       console.log("redirect to " + redirectTo)

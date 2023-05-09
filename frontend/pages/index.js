@@ -14,8 +14,8 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function Home() {
   const { user } = useUser();
-  // console.log(user);
-  const { data, error } = useSWR(`http://127.0.0.1:5000/getAccapellas/${user?.login.id}`, fetcher, {revalidateOnFocus: false});
+  console.log(user);
+  const { data, error } = useSWR(`http://127.0.0.1:5000/getAccapellas/${user?.userData.id}`, fetcher, {revalidateOnFocus: false});
   const [listings, setListings] = useState(data);
   const [tempListings, setTempListings] = useState(data);
   
@@ -24,6 +24,7 @@ export default function Home() {
     setListings(data?.listings)
     setTempListings(data?.listings)
   }, [data])
+  console.log(data);
   if(!data){
     return (<div></div>);
   }
