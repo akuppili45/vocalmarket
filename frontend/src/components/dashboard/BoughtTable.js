@@ -59,16 +59,24 @@ const tableData = [
 ];
 
 
-const ProjectTables = ({ data }) => {
+const BoughtTable = ({ data }) => {
   if(!data){
     return (<div></div>);
   }
-  // console.log(data);
+  console.log(data);
   const { user } = useUser();
+
+  const downloadTxtFile = (name) => {
+    const element = document.createElement("a");
+    element.href = `https://audio-files-music.s3.us-west-1.amazonaws.com/${name}`;
+// simulate link click
+    document.body.appendChild(element); // Required for this to work in FireFox
+    element.click();
+  }
   return (
     <Card>
       <CardBody>
-        <CardTitle tag="h5">Project Listing</CardTitle>
+        <CardTitle tag="h5">Bought Audio Samples</CardTitle>
         <CardSubtitle className="mb-2 text-muted" tag="h6">
           Overview of the projects
         </CardSubtitle>
@@ -77,45 +85,25 @@ const ProjectTables = ({ data }) => {
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Play</th>
-                <th>Key</th>
+                <th>Original Owner</th>
+                <th>Download</th>
 
-                <th>BPM</th>
-                {/* <th>Price</th> */}
-                <th>Topic</th>
+                
               </tr>
             </thead>
             <tbody>
               {data.map((tdata, index) => (
                 <tr key={index} className="border-top">
                   <td>
-                    <div className="d-flex align-items-center p-2">
-                      {/* <Image
-                        src={tdata.avatar}
-                        className="rounded-circle"
-                        alt="avatar"
-                        width="45"
-                        height="45"
-                      /> */}
-                      <div className="ms-3">
-                        <h6 className="mb-0">{tdata.aca.accapella.name}</h6>
-                        <span className="text-muted">{tdata.user_id}</span>
-                      </div>
+                    {tdata.name}
+                  </td>
+                  <td>
+                    {tdata.original_owner}
+                  </td>
+                  <td>      
+                    <div className="btnDiv">
+                        <button id="downloadBtn" onClick={() => downloadTxtFile(tdata.s3Path)} value="download">Download</button>
                     </div>
-                  </td>
-                  <td>
-                    <audio controls src={`https://audio-files-music.s3.us-west-1.amazonaws.com/${tdata.aca.accapella.s3Path}`} preload="auto" id="audio_player" type="audio/mp3" controlsList={"nodownload"}>
-</audio>
-                  </td>
-                  <td>{tdata.aca.accapella.key}</td>
-                  <td>{tdata.aca.accapella.bpm}</td>
-                  {/* <td>{tdata.price}</td> */}
-                  <td>{tdata.aca.accapella.topics[1]}</td>
-                  <td>
-                    <form action={`http://127.0.0.1:5000/create-checkout-session/${user.userData.id}/${tdata.price.id}/${tdata.aca.accapella.name}/${tdata.user_id}/${tdata.aca.accapella.s3Path.replaceAll('/', ',')}`} method="POST">
-                      <button style={{ background: '#556cd6', height: 36, borderRadius: 4, color: 'white', marginTop: 20 }} type="submit" role="link">Checkout</button>
-                    </form>
-                    
                   </td>
                 </tr>
               ))}
@@ -127,4 +115,4 @@ const ProjectTables = ({ data }) => {
   );
 };
 
-export default ProjectTables;
+export default BoughtTable;

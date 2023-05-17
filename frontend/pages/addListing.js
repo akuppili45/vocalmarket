@@ -49,7 +49,7 @@ const Forms = () => {
         // // console.log(md5);
         // const user = JSON.parse(localStorage.getItem('user'));
         
-        const s3Path = user.login.id + ',' + md5 + ',' + file.name;
+        const s3Path = user.userData.id + ',' + md5 + ',' + file.name;
         
         try{
             console.log(s3Path);
@@ -57,7 +57,7 @@ const Forms = () => {
                 endpoint: {
                   request: {
                     body: {
-                      userId: user.login.id,
+                      userId: user.userData.id,
                       hash: md5
                     }
                   }
@@ -70,7 +70,7 @@ const Forms = () => {
 
 
 
-        const endpoint = `http://127.0.0.1:5000//postAccapella/${user.login.id}/${data.name}/${data.key}/${data.bpm}/${data.price}/${s3Path}`;
+        const endpoint = `http://127.0.0.1:5000//postAccapella/${user.userData.id}/${data.name}/${data.key}/${data.bpm}/${data.price}/${s3Path}`;
 
         const options = {
             // The method is PUT because we are updating data .

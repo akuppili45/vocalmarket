@@ -107,6 +107,9 @@ def get_all_posted_accapellas_except_user(user_id):
     shuffle(list_to_return)
     return list_to_return
 
+def get_bought(user_id):
+    return UserTable.scan(AttributesToGet=['boughtAccapellas'])['Items'][0]['boughtAccapellas']
+
 
 class Encoder(json.JSONEncoder):
     def default(self, obj):
