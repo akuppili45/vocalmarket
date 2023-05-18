@@ -108,7 +108,15 @@ def get_all_posted_accapellas_except_user(user_id):
     return list_to_return
 
 def get_bought(user_id):
-    return UserTable.scan(AttributesToGet=['boughtAccapellas'])['Items'][0]['boughtAccapellas']
+    boughtListings = UserTable.scan(AttributesToGet=['boughtAccapellas'])['Items'][0]['boughtAccapellas']
+    finalList = []
+    print(getUserById(user_id)['username'], flush=True)
+    for listing in boughtListings:
+        listing['original_owner_username'] = getUserById(listing['original_owner'])['username']
+        finalList.append(listing)
+        
+
+    return finalList
 
 
 class Encoder(json.JSONEncoder):

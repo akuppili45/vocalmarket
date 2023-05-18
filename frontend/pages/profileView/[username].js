@@ -1,34 +1,31 @@
 import Head from "next/head";
 import { Col, Row } from "reactstrap";
-import ProjectTables from "../src/components/dashboard/ProjectTable";
 import useSWR from 'swr';
-import Sidebar from "../src/layouts/sidebars/vertical/Sidebar";
-import SearchBar from "../src/layouts/sidebars/vertical/SearchBar";
 import { useEffect, useState } from "react";
-import useUser from "../lib/useUser";
-import BoughtTable from "../src/components/dashboard/BoughtTable";
+import { useRouter } from "next/router";
+import useUser from "../../lib/useUser";
 
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 
 
-export default function BoughtListings() {
+export default function ProfileView() {
   const { user } = useUser();
+  const router = useRouter();
   console.log(user);
-  const { data, error } = useSWR(`http://127.0.0.1:5000/getBoughtAccapellas/${user?.userData.id}`, fetcher, {revalidateOnFocus: false});
-  const [tempListings, setTempListings] = useState(data);
-  useEffect(() => {
-    setTempListings(data?.listings)
-  }, [data])
-  console.log(tempListings);
-  if(!data){
-    return (<div></div>);
-  }
+  // const { data, error } = useSWR(`http://127.0.0.1:5000/getPostedAccapellasByUsername/${router.query.username}`, fetcher, {revalidateOnFocus: false});
+  // const [tempListings, setTempListings] = useState(data);
+  // useEffect(() => {
+  //   setTempListings(data?.listings)
+  // }, [data])
+  console.log(router.query.username);
+  // if(!data){
+  //   return (<div></div>);
+  // }
   return (
     <div>
       <div  className="pageWrapper d-md-block d-lg-flex">
-      
       <Head>
         <title>Accapella Marketplace</title>
         <meta
@@ -48,9 +45,10 @@ export default function BoughtListings() {
           </Col>
         </Row> */}
         {/***Table ***/}
+        <h1>ssss</h1>
         <Row>
           <Col lg="12" sm="12">
-            <BoughtTable data={data.bought}/>
+            {/* <BoughtTable data={data.bought}/> */}
           </Col>
         </Row>
         {/***Blog Cards***/}

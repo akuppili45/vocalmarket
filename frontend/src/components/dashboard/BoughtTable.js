@@ -98,7 +98,7 @@ const BoughtTable = ({ data }) => {
                     {tdata.name}
                   </td>
                   <td>
-                    {tdata.original_owner}
+                    <a href={`/profileView/${tdata.original_owner_username}`}>{tdata.original_owner_username}</a>
                   </td>
                   <td>      
                     <div className="btnDiv">
