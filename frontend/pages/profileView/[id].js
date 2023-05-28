@@ -4,6 +4,7 @@ import useSWR from 'swr';
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import useUser from "../../lib/useUser";
+import ProfileTable from "../../src/components/dashboard/ProfileTable";
 
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
@@ -14,15 +15,18 @@ export default function ProfileView() {
   const { user } = useUser();
   const router = useRouter();
   console.log(user);
-  // const { data, error } = useSWR(`http://127.0.0.1:5000/getPostedAccapellasByUsername/${router.query.username}`, fetcher, {revalidateOnFocus: false});
+  const { data, error } = useSWR(`http://127.0.0.1:5000/getPostedById/${router.query.id}`, fetcher, {revalidateOnFocus: false});
   // const [tempListings, setTempListings] = useState(data);
   // useEffect(() => {
   //   setTempListings(data?.listings)
   // }, [data])
-  console.log(router.query.username);
-  // if(!data){
-  //   return (<div></div>);
-  // }
+  console.log(data);
+  if(user){
+    console.log(router.query.id);
+    console.log(user.userData.id);
+  }
+  
+  console.log(user && router.query.id === user.id);
   return (
     <div>
       <div  className="pageWrapper d-md-block d-lg-flex">
@@ -48,7 +52,7 @@ export default function ProfileView() {
         <h1>ssss</h1>
         <Row>
           <Col lg="12" sm="12">
-            {/* <BoughtTable data={data.bought}/> */}
+            <ProfileTable data={data} isOwnProfile={user && router.query.id === user.userData.id}/>
           </Col>
         </Row>
         {/***Blog Cards***/}

@@ -51,6 +51,10 @@ def get_users():
         TableName='UserTable'
     )
 
+def get_posted_by_id(id):
+    user = getUserById(id)
+    # print(user, flush=True)
+    return user['postedAccapellas']
 def add_accapella_listing(user_id, username, listing):  
     result = UserTable.update_item(
         Key={

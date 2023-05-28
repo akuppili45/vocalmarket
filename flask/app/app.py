@@ -138,6 +138,9 @@ def getBoughtAccapellas(user_id):
     listing_dict = {'bought': aws_controller.get_bought(user_id)}
     return json.dumps(listing_dict, cls=aws_controller.Encoder)
 
+@app.route('/getPostedById/<id>', methods = ['GET'])
+def getPostedById(id):
+    return aws_controller.get_posted_by_id(id)
 
 @app.route('/home')
 def home():

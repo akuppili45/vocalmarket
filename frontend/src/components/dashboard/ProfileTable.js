@@ -59,7 +59,7 @@ const tableData = [
 ];
 
 
-const BoughtTable = ({ data }) => {
+const ProfileTable = ({ data, isOwnProfile }) => {
   if(!data){
     return (<div></div>);
   }
@@ -95,15 +95,22 @@ const BoughtTable = ({ data }) => {
               {data.map((tdata, index) => (
                 <tr key={index} className="border-top">
                   <td>
-                    {tdata.name}
+                    {tdata.aca.accapella.name}
                   </td>
                   <td>
-                    <a href={`/profileView/${tdata.original_owner}`}>{tdata.original_owner_username}</a>
+                    <a href={`/profileView/${tdata.user_id}`}>{tdata.user_id}</a>
                   </td>
-                  <td>      
+                  <td>   
+                    {isOwnProfile ? (
                     <div className="btnDiv">
-                        <button id="downloadBtn" onClick={() => downloadTxtFile(tdata.s3Path)} value="download">Download</button>
+                        <button id="downloadBtn" onClick={() => downloadTxtFile(tdata.aca.accapella.s3Path)} value="download">Download</button>
                     </div>
+                    ) : (
+                        <form action={`http://127.0.0.1:5000/create-checkout-session/${user.userData.id}/${tdata.price.id}/${tdata.aca.accapella.name}/${tdata.user_id}/${tdata.aca.accapella.s3Path.replaceAll('/', ',')}`} method="POST">
+                      <button style={{ background: '#556cd6', height: 36, borderRadius: 4, color: 'white', marginTop: 20 }} type="submit" role="link">Checkout</button>
+                    </form>
+                    )}   
+                    
                   </td>
                 </tr>
               ))}
@@ -115,4 +122,4 @@ const BoughtTable = ({ data }) => {
   );
 };
 
-export default BoughtTable;
+export default ProfileTable;
