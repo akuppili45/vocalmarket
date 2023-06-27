@@ -33,29 +33,15 @@ const Header = ({ showMobmenu }) => {
   const router = useRouter();
   const handleLogout = async event => {
     event.preventDefault();
-
+    console.log("logout");
+    // debugger;
     mutateUser(
       await fetchJson("/api/logout", { method: "GET" }),
       false,
     );
-    router.push("/login");
-    // const endpoint = 'http://127.0.0.1:5000/logout';
-    //     const options = {
-    //         // The method is POST because we are sending data.
-    //         method: 'GET',
-    //         // Tell the server we're sending JSON.
-    //         headers: {
-    //           'Content-Type': 'application/json',
-    //           'Access-Control-Allow-Origin' : '*',
-    //             'Access-Control-Allow-Methods':'GET,PUT,POST,DELETE,PATCH,OPTIONS'
-    //         },
-    //         credentials: "same-origin",
-    //         // Body of the request is the JSON data we created above.
-    //     }
-    //     await fetch(endpoint, options);
-
-    //     localStorage.removeItem('user');
-    //     router.push('/login')
+    console.log(user);
+    router.push("/login")
+    
   }
   return (
     <Navbar color="primary" dark expand="md">

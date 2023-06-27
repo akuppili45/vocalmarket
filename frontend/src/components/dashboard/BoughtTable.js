@@ -6,7 +6,7 @@ import user3 from "../../assets/images/users/user3.jpg";
 import user4 from "../../assets/images/users/user4.jpg";
 import user5 from "../../assets/images/users/user5.jpg";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import useUser from "../../../lib/useUser";
 
 
@@ -60,11 +60,16 @@ const tableData = [
 
 
 const BoughtTable = ({ data }) => {
+  const [user, setUser] = useState(null);
+  const userValue = useUser();
+  useEffect(() => {
+    setUser(userValue);
+  }, [userValue])
   if(!data){
     return (<div></div>);
   }
+  
   console.log(data);
-  const { user } = useUser();
 
   const downloadTxtFile = (name) => {
     const element = document.createElement("a");

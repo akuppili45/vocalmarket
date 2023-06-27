@@ -15,25 +15,23 @@ import { redirect, useRouter } from 'next/navigation';
 import useUser from "../lib/useUser"
 import { useState } from "react";
 import fetchJson, { FetchError } from "../lib/fetchJson";
-import { useEffect } from 'react';
 
 
 
   
-  const Login = () => {
-    useEffect(() => {
-      console.log("Login component rendered");
-    }, []);
+  const Register = () => {
     const router = useRouter();
-    const { user, mutateUser } = useUser({
-      redirectTo: "/",
+    const { mutateUser } = useUser({
+      redirectTo: "/ui/buttons",
       redirectIfFound: true,
     });
-    console.log(user);
-
     const [errorMsg, setErrorMsg] = useState("");
-    const loginUser = async event => {
+    const registerUser = async event => {
         event.preventDefault();
+        if (event.target.password !== event.target.confirmPassword) {
+            alert("Passwords do not match!");
+            return;
+        } 
         const data = {
             email: event.target.email.value,
             password: event.target.password.value,
@@ -102,7 +100,7 @@ import { useEffect } from 'react';
               Login
             </CardTitle>
             <CardBody>
-              <Form onSubmit={loginUser}>
+              <Form onSubmit={registerUser}>
                 <FormGroup>
                   <Label for="exampleEmail">Email</Label>
                   <Input
@@ -121,6 +119,15 @@ import { useEffect } from 'react';
                     type="password"
                   />
                 </FormGroup>
+                <FormGroup>
+                  <Label for="confirm">Confirm Password</Label>
+                  <Input
+                    id="confirm"
+                    name="password"
+                    placeholder="password placeholder"
+                    type="password"
+                  />
+                </FormGroup>
                 <Button>Submit</Button>
               </Form>
             </CardBody>
@@ -130,5 +137,5 @@ import { useEffect } from 'react';
     );
   };
   
-  export default Login;
+  export default Register;
   
