@@ -16,32 +16,29 @@ import useUser from "../lib/useUser"
 import { useState } from "react";
 import fetchJson, { FetchError } from "../lib/fetchJson";
 
-
-
-  
   const Register = () => {
     const router = useRouter();
     const { mutateUser } = useUser({
-      redirectTo: "/ui/buttons",
+      redirectTo: "/",
       redirectIfFound: true,
     });
     const [errorMsg, setErrorMsg] = useState("");
     const registerUser = async event => {
         event.preventDefault();
-        if (event.target.password !== event.target.confirmPassword) {
-            alert("Passwords do not match!");
+        if (event.target.password.value !== event.target.confirmPassword.value) {
+            alert(`Passwords ${event.target.password.value} and ${event.target.confirmPassword.value} do not match!`);
             return;
         } 
         const data = {
+            username: event.target.username.value,
             email: event.target.email.value,
             password: event.target.password.value,
         }
-        const endpoint = 'http://127.0.0.1:5000/loginWithoutForm';
         console.log(data.email);
         console.log(data.password);
         try {
           mutateUser(
-            await fetchJson('/api/login', {
+            await fetchJson('/api/register', {
               method: "POST",
               headers: { "Content-Type": "application/json", 'Access-Control-Allow-Origin' : '*',
               'Access-Control-Allow-Methods':'GET,PUT,POST,DELETE,PATCH,OPTIONS',
@@ -57,36 +54,6 @@ import fetchJson, { FetchError } from "../lib/fetchJson";
             console.error("An unexpected error happened:", error);
           }
         }
-
-        /*
-        const JSONdata = JSON.stringify(data);
-
-
-        const endpoint = 'http://127.0.0.1:5000/loginWithoutForm';
-
-        const options = {
-            // The method is POST because we are sending data.
-            method: 'POST',
-            // Tell the server we're sending JSON.
-            headers: {
-              'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin' : '*',
-              'Access-Control-Allow-Methods':'GET,PUT,POST,DELETE,PATCH,OPTIONS',
-              'Access-Control-Allow-Credentials': 'true'
-            },
-            // Body of the request is the JSON data we created above.
-            body: JSONdata,
-            credentials: 'include'
-        }
-        const response = await fetch(endpoint, options);
-
-        const result = await response.json();
-        if(result){
-            localStorage.setItem('user', JSON.stringify(result));   
-            router.push('/')
-        }
-        */
-        // console.log(result);
     }
     return (
       <Row>
@@ -97,10 +64,19 @@ import fetchJson, { FetchError } from "../lib/fetchJson";
           <Card>
             <CardTitle tag="h6" className="border-bottom p-3 mb-0">
               <i className="bi bi-bell me-2"> </i>
-              Login
+              Register
             </CardTitle>
             <CardBody>
               <Form onSubmit={registerUser}>
+              <FormGroup>
+                  <Label for="exampleEmail">Username</Label>
+                  <Input
+                    id="exampleEmail"
+                    name="username"
+                    placeholder="with a placeholder"
+                    type="username"
+                  />
+                </FormGroup>
                 <FormGroup>
                   <Label for="exampleEmail">Email</Label>
                   <Input
@@ -123,7 +99,7 @@ import fetchJson, { FetchError } from "../lib/fetchJson";
                   <Label for="confirm">Confirm Password</Label>
                   <Input
                     id="confirm"
-                    name="password"
+                    name="confirmPassword"
                     placeholder="password placeholder"
                     type="password"
                   />

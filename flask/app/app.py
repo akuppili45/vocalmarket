@@ -142,6 +142,10 @@ def getBoughtAccapellas(user_id):
 def getPostedById(id):
     return aws_controller.get_posted_by_id(id)
 
+@app.route('/getProfile/<current_user_id>/<query_id>', methods = ['GET'])
+def getProfile(current_user_id, query_id):
+    return aws_controller.get_bought_and_unbought_by_id(current_user_id, query_id)
+
 @app.route('/home')
 def home():
     return render_template('index.html', data=current_user)
@@ -149,13 +153,14 @@ def home():
 
 @app.route('/register', methods = ['POST','GET'])
 def register():
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        user = User(username =form.username.data, email = form.email.data)
-        user.set_password(form.password1.data)
-        aws_controller.addUser(user)
-        return redirect(url_for('login'))
-    return render_template('registration.html', form=form)
+    username = request.json['username']
+    user_email = request.json['email']
+    password = request.json['password']
+    
+    user = User(username =username, email = user_email)
+    user.set_password(password)
+    aws_controller.addUser(user)
+    return json.loads(json.dumps(user.__dict__))
 
 @app.route('/login', methods=['GET', 'POST'])
 @cross_origin
@@ -207,7 +212,7 @@ def loginWithoutForm():
         # request.Session()
         # print(type(json.loads(json.dumps(current_user.__dict__))))
         return json.loads(json.dumps(current_user.__dict__))
-    return None
+    return {"text": "Wrong password"}, 401
 
 @app.route("/logout", methods=['GET', 'POST'])
 # @login_required
@@ -241,8 +246,8 @@ def addSong():
 
 YOUR_DOMAIN = 'http://localhost:3000'
 
-@app.route('/create-checkout-session/<user_id>/<price_id>/<name>/<original_owner>/<s3Path>', methods=['POST'])
-def create_checkout_session(user_id, price_id, name, original_owner, s3Path):
+@app.route('/create-checkout-session/<user_id>/<price_id>/<name>/<original_owner>/<listing_id>/<s3Path>', methods=['POST'])
+def create_checkout_session(user_id, price_id, name, original_owner, listing_id, s3Path):
     print('before check9ut', flush=True)
     try:
         checkout_session = stripe.checkout.Session.create(
@@ -258,7 +263,7 @@ def create_checkout_session(user_id, price_id, name, original_owner, s3Path):
             cancel_url=YOUR_DOMAIN + '?canceled=true',
             metadata={'user_id': user_id, 'price_id': price_id, 'name': name, 'original_owner': original_owner, 's3Path': s3Path},
             payment_intent_data={
-                "metadata": {'user_id': user_id, 'price_id': price_id, 'name': name, 'original_owner': original_owner, 's3Path': s3Path}
+                "metadata": {'user_id': user_id, 'price_id': price_id, 'name': name, 'original_owner': original_owner, 'listing_id': listing_id, 's3Path': s3Path}
             }, # add metadata attribute
         )
     except Exception as e:
@@ -279,7 +284,7 @@ def webhook():
     event = None
     payload = request.data
     sig_header = request.headers['STRIPE_SIGNATURE']
-    # print('instahram', flush=True)
+    print('instahram', flush=True)
     try:
         event = stripe.Webhook.construct_event(
             payload, sig_header, stripe_endpoint_secret
@@ -297,7 +302,7 @@ def webhook():
         payment_intent = event['data']['object']
         print(payment_intent['metadata'])
         fulfill_order(payment_intent['metadata']['user_id'], payment_intent['metadata']['price_id'], 
-        payment_intent['metadata']['name'], payment_intent['metadata']['original_owner'], 
+        payment_intent['metadata']['name'], payment_intent['metadata']['original_owner'], payment_intent['metadata']['listing_id'],
         payment_intent['metadata']['s3Path'])
     # ... handle other event types
     else:
@@ -305,8 +310,9 @@ def webhook():
 
     return jsonify(success=True)
 
-def fulfill_order(user_id, price_id, name, original_owner, s3Path):
-    bought_dict = {"name": name, "original_owner": original_owner, "s3Path": s3Path.replace(',', '/')}
+def fulfill_order(user_id, price_id, name, original_owner, listing_id, s3Path):
+    print("fulfilling order")
+    bought_dict = {"name": name, "original_owner": original_owner, "listing_id": listing_id,  "s3Path": s3Path.replace(',', '/')}
     user_json = aws_controller.getUserById(user_id)
     aws_controller.add_bought_accapella(user_id, user_json['username'], bought_dict)
 

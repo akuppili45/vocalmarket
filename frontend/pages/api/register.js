@@ -3,13 +3,15 @@ import fetchJson from "../../lib/fetchJson";
 import { sessionOptions } from "../../lib/session";
 
 export default withIronSessionApiRoute(async (req, res) => {
-  const { email, password } = await req.body;
+  const { username, email, password } = await req.body;
   const JSONdata = JSON.stringify({
+    username,
     email,
     password
     });
+  try {
 
-    const endpoint = 'http://localhost:5000/loginWithoutForm';
+    const endpoint = 'http://localhost:5000/register';
 
     const options = {
             // The method is POST because we are sending data.
@@ -23,18 +25,17 @@ export default withIronSessionApiRoute(async (req, res) => {
             // Body of the request is the JSON data we created above.
             body: JSONdata,
     }
-    console.log(`email from api/login is ${email} and password is ${password}`)
+    console.log(`email from api/register is ${email} and password is ${password}`)
 
     const login = await fetchJson(endpoint, options);
+    console.log(login);
     const userData = {id: login.id, username: login.username}
-    // const {
-    //   data: { login, avatar_url },
-    // } = await octokit.rest.users.getByUsername({ username });
-
+    
     const user = { isLoggedIn: true, userData };
-    // localStorage.setItem('user', user);   
     req.session.user = user;
     await req.session.save();
     res.json(user);
-  
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 }, sessionOptions);

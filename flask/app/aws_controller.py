@@ -54,16 +54,20 @@ def get_users():
 def get_posted_by_id(id):
     user = getUserById(id)
     # print(user, flush=True)
+    if 'postedAccapellas' not in user:
+        return []
     return user['postedAccapellas']
-def add_accapella_listing(user_id, username, listing):  
+def add_accapella_listing(user_id, username, listing):
+    listing['username'] = username
     result = UserTable.update_item(
         Key={
             'id': user_id,
             'username': username
         },
-        UpdateExpression="SET postedAccapellas = list_append(if_not_exists(postedAccapellas, :i), :i)",
+        UpdateExpression="SET postedAccapellas = list_append(if_not_exists(postedAccapellas, :empty_list), :i)",
         ExpressionAttributeValues={
-            ':i': [listing]
+            ':i': [listing],
+            ':empty_list': []
         },
         ReturnValues="UPDATED_NEW"
     )
@@ -71,15 +75,17 @@ def add_accapella_listing(user_id, username, listing):
         return result['Attributes']
     return "Unable to update"
 
-def add_bought_accapella(user_id, username, bought_dict):  
+def add_bought_accapella(user_id, username, bought_dict):
+    bought_dict['username'] = username  
     result = UserTable.update_item(
         Key={
             'id': user_id,
             'username': username
         },
-        UpdateExpression="SET boughtAccapellas = list_append(if_not_exists(boughtAccapellas, :i), :i)",
+        UpdateExpression="SET boughtAccapellas = list_append(if_not_exists(boughtAccapellas, :empty_list), :i)",
         ExpressionAttributeValues={
-            ':i': [bought_dict]
+            ':i': [bought_dict],
+            ':empty_list': []
         },
         ReturnValues="UPDATED_NEW"
     )
@@ -101,27 +107,45 @@ def get_all_posted_accapellas():
 
 def get_all_posted_accapellas_except_user(user_id):
     response = UserTable.scan(AttributesToGet=['postedAccapellas'])['Items']
+    bought = [x['listing_id'] for x in get_bought(user_id)]
+    print(bought, flush=True)
+
     list_to_return = []
     for acaGroup in response:
         if 'postedAccapellas' not in  acaGroup:
             continue
         for aca in acaGroup['postedAccapellas']:
-            if(aca['user_id'] != user_id):
+            # print(aca['user_id'], user_id)
+            user = getUserById(aca['user_id'])
+            aca['username'] = user['username']
+            if(aca['user_id'] != user_id and aca['listing_id'] not in bought):
                 list_to_return.append(aca)
+    
     shuffle(list_to_return)
     return list_to_return
 
 def get_bought(user_id):
-    boughtListings = UserTable.scan(AttributesToGet=['boughtAccapellas'])['Items'][0]['boughtAccapellas']
-    finalList = []
-    print(getUserById(user_id)['username'], flush=True)
-    for listing in boughtListings:
-        listing['original_owner_username'] = getUserById(listing['original_owner'])['username']
-        finalList.append(listing)
-        
+    user = getUserById(user_id)
+    # print(user, flush=True)
+    if 'boughtAccapellas' in user:
+        return user['boughtAccapellas']
+    return []
 
-    return finalList
-
+def get_bought_and_unbought_by_id(current_user_id, query_id):
+    curr_user = getUserById(current_user_id)
+    query_user = getUserById(query_id)
+    # if 'postedAccapellas' not in query_user or 'boughtAccapellas' not in curr_user:
+    #     return []
+    bought_ids = [] if 'boughtAccapellas' not in curr_user else [x['listing_id'] for x in curr_user['boughtAccapellas']]
+    bought = []
+    not_bought = []
+    if 'postedAccapellas' in query_user:
+        for l in query_user['postedAccapellas']:
+            if l['listing_id'] in bought_ids:
+                bought.append(l)
+            else:
+                not_bought.append(l)
+    return [bought, not_bought]
 
 class Encoder(json.JSONEncoder):
     def default(self, obj):

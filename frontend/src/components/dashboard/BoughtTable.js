@@ -60,17 +60,6 @@ const tableData = [
 
 
 const BoughtTable = ({ data }) => {
-  const [user, setUser] = useState(null);
-  const userValue = useUser();
-  useEffect(() => {
-    setUser(userValue);
-  }, [userValue])
-  if(!data){
-    return (<div></div>);
-  }
-  
-  console.log(data);
-
   const downloadTxtFile = (name) => {
     const element = document.createElement("a");
     element.href = `https://audio-files-music.s3.us-west-1.amazonaws.com/${name}`;

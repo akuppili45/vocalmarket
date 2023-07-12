@@ -31,6 +31,9 @@ const Header = ({ showMobmenu }) => {
   };
   const { user, mutateUser } = useUser();
   const router = useRouter();
+  if(!user){
+    return <div>Loading...</div>
+  }
   const handleLogout = async event => {
     event.preventDefault();
     console.log("logout");
@@ -72,25 +75,9 @@ const Header = ({ showMobmenu }) => {
         <Nav className="me-auto" navbar>
           <NavItem>
             <Link href="/" className="nav-link">
-              Starter
+              Dashboard
             </Link>
           </NavItem>
-          <NavItem>
-            <Link href="/about" className="nav-link">
-              About
-            </Link>
-          </NavItem>
-          <UncontrolledDropdown inNavbar nav>
-            <DropdownToggle caret nav>
-              DD Menu
-            </DropdownToggle>
-            <DropdownMenu end>
-              <DropdownItem>Option 1</DropdownItem>
-              <DropdownItem>Option 2</DropdownItem>
-              <DropdownItem divider />
-              <DropdownItem>Reset</DropdownItem>
-            </DropdownMenu>
-          </UncontrolledDropdown>
         </Nav>
         <Dropdown isOpen={dropdownOpen} toggle={toggle}>
           <DropdownToggle color="primary">
@@ -106,11 +93,12 @@ const Header = ({ showMobmenu }) => {
           </DropdownToggle>
           <DropdownMenu>
             <DropdownItem header>Info</DropdownItem>
-            <DropdownItem>My Account</DropdownItem>
-            <DropdownItem>Edit Profile</DropdownItem>
-            <DropdownItem divider />
-            <DropdownItem>My Balance</DropdownItem>
-            <DropdownItem>Inbox</DropdownItem>
+            <DropdownItem onClick={() => {
+              const id = user?.userData?.id;
+              router.push(`/profileView/${id}`)
+            }}>My Listings</DropdownItem>
+            <DropdownItem onClick={() => router.push('/addListing')}>Add Listing</DropdownItem>
+            <DropdownItem onClick={() => router.push('/boughtListings')}>My Purchases</DropdownItem>
             <DropdownItem onClick={handleLogout}>Logout</DropdownItem>
           </DropdownMenu>
         </Dropdown>

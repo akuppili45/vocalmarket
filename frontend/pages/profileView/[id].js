@@ -12,32 +12,21 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
 
 export default function ProfileView() {
-  const { user } = useUser();
+  const {user} = useUser();
   const router = useRouter();
+  const profileUserID = router.query.id;
+  const currUserId = user?.userData?.id;
+  const apiUrl = `http://127.0.0.1:5000//getProfile/${currUserId}/${profileUserID}`;
+  console.log(apiUrl)
+  const { data: fetcherData } = useSWR(profileUserID && currUserId ? apiUrl : null, fetcher);
   console.log(user);
-  const { data, error } = useSWR(`http://127.0.0.1:5000/getPostedById/${router.query.id}`, fetcher, {revalidateOnFocus: false});
-  // const [tempListings, setTempListings] = useState(data);
-  // useEffect(() => {
-  //   setTempListings(data?.listings)
-  // }, [data])
-  console.log(data);
-  if(user){
-    console.log(router.query.id);
-    console.log(user.userData.id);
+  console.log(fetcherData);
+  if (!user || !fetcherData) {
+    return <p>Loading...</p>;
   }
-  
-  console.log(user && router.query.id === user.id);
   return (
     <div>
       <div  className="pageWrapper d-md-block d-lg-flex">
-        <Head>
-          <title>Accapella Marketplace</title>
-          <meta
-            name="description"
-            content="Accapella Marketplace"
-          />
-          <link rel="icon" href="/favicon.ico" />
-        </Head>
         <div className="contentArea">
             {/***Sales & Feed***/}
             {/* <Row>
@@ -51,7 +40,16 @@ export default function ProfileView() {
             {/***Table ***/}
             <Row>
               <Col lg="12" sm="12">
-                <ProfileTable data={data} isOwnProfile={user && router.query.id === user.userData.id}/>
+                {router.query.id && user ? (
+                  <div>
+                    <ProfileTable data={fetcherData[1]} isOwnProfile={user && router.query.id === currUserId} currentUser={currUserId} title="Listings"/>
+                    <ProfileTable data={fetcherData[0]} isOwnProfile={true} currentUser={currUserId} title="Bought Listings"/>
+                  </div>
+                  
+
+                ) : (
+                  <div></div>
+                )}
               </Col>
             </Row>
             {/***Blog Cards***/}

@@ -59,17 +59,9 @@ const tableData = [
 ];
 
 
-const ProfileTable = ({ data, isOwnProfile }) => {
-  const [user, setUser] = useState(null);
-  const userValue = useUser();
-  useEffect(() => {
-    setUser(userValue);
-  }, [userValue])
-  if(!data){
-    return (<div></div>);
-  }
+const ProfileTable = ({ data, isOwnProfile, currentUser, title }) => {
+  
   console.log(data);
-
   const downloadTxtFile = (name) => {
     const element = document.createElement("a");
     element.href = `https://audio-files-music.s3.us-west-1.amazonaws.com/${name}`;
@@ -80,10 +72,7 @@ const ProfileTable = ({ data, isOwnProfile }) => {
   return (
     <Card>
       <CardBody>
-        <CardTitle tag="h5">Bought Audio Samples</CardTitle>
-        <CardSubtitle className="mb-2 text-muted" tag="h6">
-          Overview of the projects
-        </CardSubtitle>
+        <CardTitle tag="h5">{title}</CardTitle>
         <div className="table-responsive">
           <Table className="text-nowrap mt-3 align-middle" borderless>
             <thead>
@@ -102,7 +91,7 @@ const ProfileTable = ({ data, isOwnProfile }) => {
                     {tdata.aca.accapella.name}
                   </td>
                   <td>
-                    <a href={`/profileView/${tdata.user_id}`}>{tdata.user_id}</a>
+                    <a href={`/profileView/${tdata.user_id}`}>{tdata.username}</a>
                   </td>
                   <td>   
                     {isOwnProfile ? (
@@ -110,7 +99,7 @@ const ProfileTable = ({ data, isOwnProfile }) => {
                         <button id="downloadBtn" onClick={() => downloadTxtFile(tdata.aca.accapella.s3Path)} value="download">Download</button>
                     </div>
                     ) : (
-                        <form action={`http://127.0.0.1:5000/create-checkout-session/${user.userData.id}/${tdata.price.id}/${tdata.aca.accapella.name}/${tdata.user_id}/${tdata.aca.accapella.s3Path.replaceAll('/', ',')}`} method="POST">
+                        <form action={`http://127.0.0.1:5000/create-checkout-session/${currentUser}/${tdata.price.id}/${tdata.aca.accapella.name}/${tdata.user_id}/${tdata.listing_id}/${tdata.aca.accapella.s3Path.replaceAll('/', ',')}`} method="POST">
                       <button style={{ background: '#556cd6', height: 36, borderRadius: 4, color: 'white', marginTop: 20 }} type="submit" role="link">Checkout</button>
                     </form>
                     )}   

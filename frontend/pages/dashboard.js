@@ -11,20 +11,27 @@ import { useRouter } from "next/router";
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function Dashboard() {
-    // console.log("index");
     const router = useRouter();
-    const { data, error } = useSWR(`http://127.0.0.1:5000/getAccapellas/${router.query.userID}`);
-    if(!data){
-        return <div>Loading...</div>
-    }
-    // console.log("rendered after login");
-    // const [listings, setListings] = useState(data);
-    const tempListings = data.listings;
-  
+    // console.log(router);
+    // const [originalListings, setOriginalListings] = useState([]); 
+    const userID = router.query.userID;
+    const apiUrl = `http://127.0.0.1:5000/getAccapellas/${userID}`
+    const { data: itemsData, error } = useSWR(userID ? apiUrl : null, fetcher);
+    const [originalListings, setItems] = useState([]);
+    const [tempListings, setTempListings] = useState([]);
+    useEffect(() => {
+        if (itemsData) {
+            setItems(itemsData.listings);
+            setTempListings(itemsData.listings);
+        }
+    }, [itemsData]);
+   
+    console.log(originalListings);
+
     return (
         <div>
           <div className="pageWrapper d-md-block d-lg-flex">
-            <aside className={`sidebarArea shadow bg-white ${!open ? "" : "showSidebar"}`}>
+            <aside className={`sidebarArea shadow bg-white showSidebar`}>
               <SearchBar setData={e => {
                 e.preventDefault();
                 const name = e.target.name.value;
@@ -34,10 +41,10 @@ export default function Dashboard() {
                 const bpmHigh = e.target.bpmHigh.value;
                 const topicsStr = e.target.topics.value;
                 const topicsArr = topicsStr.split(' ');
-                const filtered = listings.filter(listing => {
+                const filtered = originalListings.filter(listing => {
                   return (
                     (name.length === 0 || (name.length > 0 && name === listing.aca.accapella.name)) &&
-                    (author.length === 0 || (author.length > 0 && author === listing.user_id)) &&
+                    (author.length === 0 || (author.length > 0 && author === listing.username)) &&
                     (key.length === 0 || (key.length > 0 && key === listing.aca.accapella.key)) &&
                     (bpmLow.length === 0 || (bpmLow.length > 0 && parseInt(bpmLow) < parseInt(listing.aca.accapella.bpm))) &&
                     (bpmHigh.length === 0 || (bpmHigh.length > 0 && parseInt(bpmHigh) > parseInt(listing.aca.accapella.bpm))) &&

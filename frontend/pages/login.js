@@ -9,9 +9,10 @@ import {
     FormGroup,
     Label,
     Input,
-    FormText,
+    FormText
   } from 'reactstrap';
 import { redirect, useRouter } from 'next/navigation';
+import Link from "next/link";
 import useUser from "../lib/useUser"
 import { useState } from "react";
 import fetchJson, { FetchError } from "../lib/fetchJson";
@@ -42,8 +43,18 @@ import { useEffect } from 'react';
         console.log(data.email);
         console.log(data.password);
         try {
+          console.log("before mutate");
           mutateUser(
-            await fetchJson('/api/login', {
+          //   fetchJson('/api/login', {
+          //     method: "POST",
+          //     headers: { "Content-Type": "application/json", 'Access-Control-Allow-Origin' : '*',
+          //     'Access-Control-Allow-Methods':'GET,PUT,POST,DELETE,PATCH,OPTIONS',
+          //     'Access-Control-Allow-Credentials': 'true' },
+          //     body: JSON.stringify(data),
+          //   }).then(res => res.json()).then(data => data).catch(err => console.log("there is an error")),
+          //   false,
+          // );
+          await fetchJson('/api/login', {
               method: "POST",
               headers: { "Content-Type": "application/json", 'Access-Control-Allow-Origin' : '*',
               'Access-Control-Allow-Methods':'GET,PUT,POST,DELETE,PATCH,OPTIONS',
@@ -56,7 +67,7 @@ import { useEffect } from 'react';
           if (error instanceof FetchError) {
             setErrorMsg(error.data.message);
           } else {
-            console.error("An unexpected error happened:", error);
+            alert("Invalid credentials");
           }
         }
 
@@ -99,7 +110,7 @@ import { useEffect } from 'react';
           <Card>
             <CardTitle tag="h6" className="border-bottom p-3 mb-0">
               <i className="bi bi-bell me-2"> </i>
-              Login
+              Login <Link href='/register'>Not registered? Register here.</Link>
             </CardTitle>
             <CardBody>
               <Form onSubmit={loginUser}>

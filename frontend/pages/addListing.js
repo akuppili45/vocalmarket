@@ -15,6 +15,7 @@ import {
 import { CryptoJS } from '../tools/md5';
 import { useS3Upload } from "next-s3-upload";
 import useUser from '../lib/useUser';
+import { useRouter } from 'next/router';
 
   
 const Forms = () => {
@@ -22,11 +23,17 @@ const Forms = () => {
     const [md5, setMd5] = useState(null);
     const [num, setNum] = useState(0);
     let { uploadToS3 } = useS3Upload();
+    const router = useRouter();
     const { user } = useUser();
+    const [loading, setLoading] = useState(true);
     console.log(user);
     // console.log(md5);
+    if(!user){
+      return <div>Loading...</div>
+    }
     const addListing = async event => {
         event.preventDefault();
+        setLoading(false);
         const data = {
             name: event.target.name.value,
             key: event.target.key.value,
@@ -84,11 +91,9 @@ const Forms = () => {
             // Body of the request is the JSON data we created above.
             body: JSONdata,
         }
-        const response = await fetch(endpoint, options);
+        const response = await fetch(endpoint, options);  
+        router.push({pathname: `/profileView/${user.userData.id}`, query: {userID: user.userData.id, username: user.userData.username}})
 
-        
-                  
-        
     }
 
     const onFileChange = event => {
@@ -172,7 +177,12 @@ const Forms = () => {
                     lighter and easily wraps to a new line.
                   </FormText>
                 </FormGroup>
-                <Button>Submit</Button>
+                {loading ? (
+                  <Button>Submit</Button>
+                ) : (
+                  <div>Loading...</div>
+                )}
+                
               </Form>
             </CardBody>
           </Card>
