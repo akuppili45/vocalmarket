@@ -31,31 +31,20 @@ const Header = ({ showMobmenu }) => {
   };
   const { user, mutateUser } = useUser();
   const router = useRouter();
+  if(!user){
+    return <div>Loading...</div>
+  }
   const handleLogout = async event => {
     event.preventDefault();
-
+    console.log("logout");
+    // debugger;
     mutateUser(
       await fetchJson("/api/logout", { method: "GET" }),
       false,
     );
-    router.push("/login");
-    // const endpoint = 'http://127.0.0.1:5000/logout';
-    //     const options = {
-    //         // The method is POST because we are sending data.
-    //         method: 'GET',
-    //         // Tell the server we're sending JSON.
-    //         headers: {
-    //           'Content-Type': 'application/json',
-    //           'Access-Control-Allow-Origin' : '*',
-    //             'Access-Control-Allow-Methods':'GET,PUT,POST,DELETE,PATCH,OPTIONS'
-    //         },
-    //         credentials: "same-origin",
-    //         // Body of the request is the JSON data we created above.
-    //     }
-    //     await fetch(endpoint, options);
-
-    //     localStorage.removeItem('user');
-    //     router.push('/login')
+    console.log(user);
+    router.push("/login")
+    
   }
   return (
     <Navbar color="primary" dark expand="md">
@@ -86,25 +75,9 @@ const Header = ({ showMobmenu }) => {
         <Nav className="me-auto" navbar>
           <NavItem>
             <Link href="/" className="nav-link">
-              Starter
+              Dashboard
             </Link>
           </NavItem>
-          <NavItem>
-            <Link href="/about" className="nav-link">
-              About
-            </Link>
-          </NavItem>
-          <UncontrolledDropdown inNavbar nav>
-            <DropdownToggle caret nav>
-              DD Menu
-            </DropdownToggle>
-            <DropdownMenu end>
-              <DropdownItem>Option 1</DropdownItem>
-              <DropdownItem>Option 2</DropdownItem>
-              <DropdownItem divider />
-              <DropdownItem>Reset</DropdownItem>
-            </DropdownMenu>
-          </UncontrolledDropdown>
         </Nav>
         <Dropdown isOpen={dropdownOpen} toggle={toggle}>
           <DropdownToggle color="primary">
@@ -120,11 +93,12 @@ const Header = ({ showMobmenu }) => {
           </DropdownToggle>
           <DropdownMenu>
             <DropdownItem header>Info</DropdownItem>
-            <DropdownItem>My Account</DropdownItem>
-            <DropdownItem>Edit Profile</DropdownItem>
-            <DropdownItem divider />
-            <DropdownItem>My Balance</DropdownItem>
-            <DropdownItem>Inbox</DropdownItem>
+            <DropdownItem onClick={() => {
+              const id = user?.userData?.id;
+              router.push(`/profileView/${id}`)
+            }}>My Listings</DropdownItem>
+            <DropdownItem onClick={() => router.push('/addListing')}>Add Listing</DropdownItem>
+            <DropdownItem onClick={() => router.push('/boughtListings')}>My Purchases</DropdownItem>
             <DropdownItem onClick={handleLogout}>Logout</DropdownItem>
           </DropdownMenu>
         </Dropdown>

@@ -59,7 +59,9 @@ const tableData = [
 ];
 
 
-const BoughtTable = ({ data }) => {
+const ProfileTable = ({ data, isOwnProfile, currentUser, title }) => {
+  
+  console.log(data);
   const downloadTxtFile = (name) => {
     const element = document.createElement("a");
     element.href = `https://audio-files-music.s3.us-west-1.amazonaws.com/${name}`;
@@ -70,10 +72,7 @@ const BoughtTable = ({ data }) => {
   return (
     <Card>
       <CardBody>
-        <CardTitle tag="h5">Bought Audio Samples</CardTitle>
-        <CardSubtitle className="mb-2 text-muted" tag="h6">
-          Overview of the projects
-        </CardSubtitle>
+        <CardTitle tag="h5">{title}</CardTitle>
         <div className="table-responsive">
           <Table className="text-nowrap mt-3 align-middle" borderless>
             <thead>
@@ -89,15 +88,22 @@ const BoughtTable = ({ data }) => {
               {data.map((tdata, index) => (
                 <tr key={index} className="border-top">
                   <td>
-                    {tdata.name}
+                    {tdata.aca.accapella.name}
                   </td>
                   <td>
-                    <a href={`/profileView/${tdata.original_owner}`}>{tdata.original_owner_username}</a>
+                    <a href={`/profileView/${tdata.user_id}`}>{tdata.username}</a>
                   </td>
-                  <td>      
+                  <td>   
+                    {isOwnProfile ? (
                     <div className="btnDiv">
-                        <button id="downloadBtn" onClick={() => downloadTxtFile(tdata.s3Path)} value="download">Download</button>
+                        <button id="downloadBtn" onClick={() => downloadTxtFile(tdata.aca.accapella.s3Path)} value="download">Download</button>
                     </div>
+                    ) : (
+                        <form action={`http://127.0.0.1:5000/create-checkout-session/${currentUser}/${tdata.price.id}/${tdata.aca.accapella.name}/${tdata.user_id}/${tdata.listing_id}/${tdata.aca.accapella.s3Path.replaceAll('/', ',')}`} method="POST">
+                      <button style={{ background: '#556cd6', height: 36, borderRadius: 4, color: 'white', marginTop: 20 }} type="submit" role="link">Checkout</button>
+                    </form>
+                    )}   
+                    
                   </td>
                 </tr>
               ))}
@@ -109,4 +115,4 @@ const BoughtTable = ({ data }) => {
   );
 };
 
-export default BoughtTable;
+export default ProfileTable;

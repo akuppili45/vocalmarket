@@ -6,8 +6,9 @@ import user3 from "../../assets/images/users/user3.jpg";
 import user4 from "../../assets/images/users/user4.jpg";
 import user5 from "../../assets/images/users/user5.jpg";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import useUser from "../../../lib/useUser";
+import Link from "next/link";
 
 
 const tableData = [
@@ -59,12 +60,8 @@ const tableData = [
 ];
 
 
-const ProjectTables = ({ data }) => {
-  if(!data){
-    return (<div></div>);
-  }
-  // console.log(data);
-  const { user } = useUser();
+const ProjectTables = ({ data, userID }) => {
+  console.log(data);
   return (
     <Card>
       <CardBody>
@@ -99,7 +96,7 @@ const ProjectTables = ({ data }) => {
                       /> */}
                       <div className="ms-3">
                         <h6 className="mb-0">{tdata.aca.accapella.name}</h6>
-                        <span className="text-muted">{tdata.user_id}</span>
+                        <Link href={`/profileView/${tdata.user_id}`}>{tdata.username}</Link>
                       </div>
                     </div>
                   </td>
@@ -109,10 +106,9 @@ const ProjectTables = ({ data }) => {
                   </td>
                   <td>{tdata.aca.accapella.key}</td>
                   <td>{tdata.aca.accapella.bpm}</td>
-                  {/* <td>{tdata.price}</td> */}
                   <td>{tdata.aca.accapella.topics[1]}</td>
                   <td>
-                    <form action={`http://127.0.0.1:5000/create-checkout-session/${user.userData.id}/${tdata.price.id}/${tdata.aca.accapella.name}/${tdata.user_id}/${tdata.aca.accapella.s3Path.replaceAll('/', ',')}`} method="POST">
+                    <form action={`http://127.0.0.1:5000/create-checkout-session/${userID}/${tdata.price.id}/${tdata.aca.accapella.name}/${tdata.user_id}/${tdata.listing_id}/${tdata.aca.accapella.s3Path.replaceAll('/', ',')}`} method="POST">
                       <button style={{ background: '#556cd6', height: 36, borderRadius: 4, color: 'white', marginTop: 20 }} type="submit" role="link">Checkout</button>
                     </form>
                     

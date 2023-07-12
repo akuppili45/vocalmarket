@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { Button, ButtonGroup, Card, CardBody, CardTitle, Row, Col } from 'reactstrap';
+import useUser from '../../lib/useUser';
 
 const Buttons = () => {
+  const { user } = useUser();
+  console.log(user);
   const [cSelected, setCSelected] = useState([]);
   const [rSelected, setRSelected] = useState(null);
 

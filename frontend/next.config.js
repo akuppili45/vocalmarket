@@ -14,6 +14,7 @@ module.exports = {
               outputPath: `${isServer ? '../' : ''}static/images/`,
               name: '[name]-[hash].[ext]',
               esModule: config.esModule || false,
+              reactStrictMode: false
             },
           },
         ],
