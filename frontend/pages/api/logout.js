@@ -5,6 +5,7 @@ import { sessionOptions } from "../../lib/session";
 export default withIronSessionApiRoute(logoutRoute, sessionOptions);
 
 async function logoutRoute(req, res) {
+    console.log("in logout route")
     const endpoint = 'http://localhost:5000/logout';
         const options = {
             // The method is POST because we are sending data.

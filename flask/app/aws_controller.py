@@ -10,6 +10,7 @@ from random import shuffle
 from decimal import Decimal
 
 
+
 dynamo_client = boto3.client('dynamodb')
 dynamo_resource = boto3.resource('dynamodb')
 

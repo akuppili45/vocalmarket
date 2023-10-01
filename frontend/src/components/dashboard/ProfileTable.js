@@ -85,7 +85,7 @@ const ProfileTable = ({ data, isOwnProfile, currentUser, title }) => {
               </tr>
             </thead>
             <tbody>
-              {data.map((tdata, index) => (
+              {data?.map((tdata, index) => (
                 <tr key={index} className="border-top">
                   <td>
                     {tdata.aca.accapella.name}

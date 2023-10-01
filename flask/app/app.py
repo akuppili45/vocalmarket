@@ -4,12 +4,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask import Flask,render_template,flash,redirect, url_for,request, jsonify, session, g
 import os
 
-from flask_login import LoginManager, UserMixin, login_required, login_user,logout_user, current_user
 from datetime import datetime
 
-from flask_wtf import FlaskForm
-from wtforms import StringField,PasswordField,SubmitField,BooleanField
-from wtforms.validators import DataRequired,Email,EqualTo
 from flask_cors import CORS, cross_origin
 
 
@@ -25,7 +21,7 @@ import uuid
 import generateTopic
 
 from flask.sessions import SecureCookieSessionInterface
-from flask_session import Session
+# from flask_session import Session
 
 import stripe
 
@@ -37,7 +33,7 @@ app.secret_key = SECRET_KEY
 SESSION_TYPE = 'filesystem'
 app.config.from_object(__name__)
 
-Session(app)
+# Session(app)
 CORS(app, supports_credentials=True, origin='http://localhost:3000/')
 
 app.config["SESSION_COOKIE_SAMESITE"] = "None"
@@ -46,16 +42,24 @@ app.config["SESSION_COOKIE_SECURE"] = True
 
 app.app_context().push()
 
-stripe.api_key = "sk_test_51N7rZpFMuSlfDtxouaW01OPWnMB8Hq5Gy5oX7Iyu06tWba6UKL8gkXJLRwPCzrbXvROgshyTf5kK6kg7oGb0J7Xj00OQQyDjZ5"
-stripe_endpoint_secret = 'whsec_9c7f8a94babb7cae926759a3ebcb95bef3db806b6c9f3c71c4488d963c46f194'
+stripe_keys = {
+    "secret_key": os.environ["STRIPE_SECRET_KEY"],
+    "publishable_key": os.environ["STRIPE_PUBLISHABLE_KEY"],
+    "endpoint_secret": os.environ["STRIPE_ENDPOINT_SECRET"], # new
+}
 
-login_manager = LoginManager()
-login_manager.init_app(app)
+
+stripe.api_key = stripe_keys["secret_key"]
+endpoint_secret = 'whsec_9c7f8a94babb7cae926759a3ebcb95bef3db806b6c9f3c71c4488d963c46f194'
 
 
-class User(UserMixin):
+
+
+toggle = False
+
+
+class User:
     def __init__(self, username, email, *args, **kwargs):
-        super(UserMixin, self).__init__()
         self.id = str(uuid.uuid4())
         self.username = username
         self.email = email
@@ -70,29 +74,6 @@ class User(UserMixin):
 
 
 
-class RegistrationForm(FlaskForm):
-    username = StringField('username', validators =[DataRequired()])
-    email = StringField('Email', validators=[DataRequired(),Email()])
-    password1 = PasswordField('Password', validators = [DataRequired()])
-    password2 = PasswordField('Confirm Password', validators = [DataRequired(),EqualTo('password1')])
-    submit = SubmitField('Register')
-
-class LoginForm(FlaskForm):
-    email = StringField('Email',validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    remember = BooleanField('Remember Me',validators= [DataRequired()])
-    submit = SubmitField('Login')
-
-
-toggle = False
-
-@login_manager.user_loader
-def load_user(user_id):
-    user_json = aws_controller.getUserById(user_id)
-    user = User(user_json['username'], user_json['email'])
-    user.password_hash = user_json['password_hash']
-    user.id = user_json['id']
-    return user
 
 
 @app.route('/users/<id>')
@@ -101,7 +82,6 @@ def get_user(user_id):
     return user_json
 
 @app.route('/')
-@login_required
 def login_required_route():
     return "logged in"
 # post accapella listing
@@ -126,7 +106,7 @@ def postAccapellaListing(user_id, name, key, bpm, price, s3Path):
 
 @app.route('/getAccapellas/<user_id>', methods = ['GET', 'POST'])
 def getAccapellas(user_id):
-    print(current_user, flush=True)
+    # print(current_user, flush=True)
     listing_dict = {'listings': aws_controller.get_all_posted_accapellas_except_user(user_id)}
     return json.dumps(listing_dict, cls=aws_controller.Encoder)
     # return 'hey'
@@ -134,7 +114,6 @@ def getAccapellas(user_id):
 
 @app.route('/getBoughtAccapellas/<user_id>', methods = ['GET'])
 def getBoughtAccapellas(user_id):
-    print(current_user, flush=True)
     listing_dict = {'bought': aws_controller.get_bought(user_id)}
     return json.dumps(listing_dict, cls=aws_controller.Encoder)
 
@@ -205,13 +184,12 @@ def loginWithoutForm():
     if user is not None and user.check_password(entered_password):
         # print(type(current_user))
         # print(current_user.is_authenticated)
-        login_user(user)
         session['curr'] = 'curr'
         print('login', flush=True)
         print(session.get('curr'), flush=True)
         # request.Session()
         # print(type(json.loads(json.dumps(current_user.__dict__))))
-        return json.loads(json.dumps(current_user.__dict__))
+        return json.loads(json.dumps(user.__dict__))
     return {"text": "Wrong password"}, 401
 
 @app.route("/logout", methods=['GET', 'POST'])
@@ -219,7 +197,6 @@ def loginWithoutForm():
 @cross_origin()
 def logout():
     print(session.get('curr'), flush=True)
-    logout_user()
     return json.loads(json.dumps({'logout': True}))
 @app.route('/get-items')
 def get_items():
@@ -249,6 +226,7 @@ YOUR_DOMAIN = 'http://localhost:3000'
 @app.route('/create-checkout-session/<user_id>/<price_id>/<name>/<original_owner>/<listing_id>/<s3Path>', methods=['POST'])
 def create_checkout_session(user_id, price_id, name, original_owner, listing_id, s3Path):
     print('before check9ut', flush=True)
+    stripe.api_key = stripe_keys["secret_key"]
     try:
         checkout_session = stripe.checkout.Session.create(
             line_items=[
@@ -281,13 +259,19 @@ def create_checkout_session(user_id, price_id, name, original_owner, listing_id,
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
+    print("inside webhook biatch")
     event = None
     payload = request.data
     sig_header = request.headers['STRIPE_SIGNATURE']
-    print('instahram', flush=True)
+    # print('instahram', flush=True)
+    try:
+        event = json.loads(payload)
+    except:
+        print('⚠️  Webhook error while parsing basic request.' + str(e))
+        return jsonify(success=False)
     try:
         event = stripe.Webhook.construct_event(
-            payload, sig_header, stripe_endpoint_secret
+            payload, sig_header, endpoint_secret
         )
     except ValueError as e:
         # Invalid payload
@@ -310,9 +294,14 @@ def webhook():
 
     return jsonify(success=True)
 
+
+
 def fulfill_order(user_id, price_id, name, original_owner, listing_id, s3Path):
     print("fulfilling order")
     bought_dict = {"name": name, "original_owner": original_owner, "listing_id": listing_id,  "s3Path": s3Path.replace(',', '/')}
     user_json = aws_controller.getUserById(user_id)
     aws_controller.add_bought_accapella(user_id, user_json['username'], bought_dict)
 
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', debug=True)

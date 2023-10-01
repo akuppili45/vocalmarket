@@ -83,7 +83,7 @@ const ProjectTables = ({ data, userID }) => {
               </tr>
             </thead>
             <tbody>
-              {data.map((tdata, index) => (
+              {data?.map((tdata, index) => (
                 <tr key={index} className="border-top">
                   <td>
                     <div className="d-flex align-items-center p-2">

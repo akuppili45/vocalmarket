@@ -1,1 +1,6 @@
 flask
+flask_cors
+boto3
+openai
+smart_open
+stripe

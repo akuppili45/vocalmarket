@@ -1,11 +1,11 @@
 import boto3
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 import openai
 import os
 import smart_open
 from accapella import Accapella
 from accapellaListing import AccapellaListing
-load_dotenv()
+# load_dotenv()
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
 s3 = boto3.client('s3')
