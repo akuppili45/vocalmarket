@@ -11,7 +11,7 @@ export default withIronSessionApiRoute(async (req, res) => {
     });
   try {
 
-    const endpoint = 'http://localhost:5000/register';
+    const endpoint = 'http://127.0.0.1:57380/register';
 
     const options = {
             // The method is POST because we are sending data.
