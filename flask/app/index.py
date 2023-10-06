@@ -57,7 +57,7 @@ endpoint_secret = 'whsec_9c7f8a94babb7cae926759a3ebcb95bef3db806b6c9f3c71c4488d9
 
 toggle = False
 
-
+print("stub")
 class User:
     def __init__(self, username, email, *args, **kwargs):
         self.id = str(uuid.uuid4())
