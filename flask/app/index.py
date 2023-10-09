@@ -132,14 +132,18 @@ def home():
 
 @app.route('/register', methods = ['POST','GET'])
 def register():
-    username = request.json['username']
-    user_email = request.json['email']
-    password = request.json['password']
-    
-    user = User(username =username, email = user_email)
-    user.set_password(password)
-    aws_controller.addUser(user)
-    return json.loads(json.dumps(user.__dict__))
+    try:
+        username = request.json['username']
+        user_email = request.json['email']
+        password = request.json['password']
+        
+        user = User(username =username, email = user_email)
+        user.set_password(password)
+        aws_controller.addUser(user)
+        return json.loads(json.dumps(user.__dict__))
+    except Exception as e:
+        return e
+    return None
 
 @app.route('/login', methods=['GET', 'POST'])
 @cross_origin
