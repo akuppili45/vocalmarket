@@ -11,7 +11,7 @@ export default withIronSessionApiRoute(async (req, res) => {
     });
   try {
 
-    const endpoint = 'http://127.0.0.1:57380/register';
+    const endpoint = 'flask-hello-world-5rrd3zq8r-akuppili45s-projects.vercel.app/register';
 
     const options = {
             // The method is POST because we are sending data.
